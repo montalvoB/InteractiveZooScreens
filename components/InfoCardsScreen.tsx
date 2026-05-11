@@ -41,7 +41,14 @@ export default function InfoCardsScreen() {
       >
         <Text style={styles.title}>Info Cards</Text>
         <Text style={styles.heading}>Do you want to find out more?</Text>
-        <CarouselCards cards={cards} />
+        <CarouselCards
+          cards={cards}
+          onCardPress={(card) => {
+            if (card.title === "Animal Vision") {
+              router.push("/DragDropScreen");
+            }
+          }}
+        />
         <TouchableOpacity
           onPress={() => router.push("/")}
           style={styles.backButton}

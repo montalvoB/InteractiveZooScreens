@@ -1,5 +1,5 @@
 import { useRef } from 'react';
-import { View, Text, Animated, StyleSheet, Dimensions, ImageBackground, useWindowDimensions } from 'react-native';
+import { View, Text, Animated, StyleSheet, Dimensions, ImageBackground, useWindowDimensions, TouchableOpacity} from 'react-native';
 
 const { width, height } = Dimensions.get('window');
 
@@ -16,9 +16,10 @@ export type CarouselCardItem = {
 
 type CarouselCardsProps = {
   cards: CarouselCardItem[];
+  onCardPress?: (card: CarouselCardItem) => void;
 };
 
-export default function CarouselCards({ cards }: CarouselCardsProps) {
+export default function CarouselCards({ cards, onCardPress }: CarouselCardsProps){
   const scrollX = useRef(new Animated.Value(0)).current;
 
   return (
@@ -49,14 +50,28 @@ export default function CarouselCards({ cards }: CarouselCardsProps) {
         const rotate = scrollX.interpolate({ inputRange, outputRange: ['-3deg', '0deg', '3deg'], extrapolate: 'clamp' });
 
         return (
-          <Animated.View style={[styles.card, { transform: [{ scale }, { translateY }, { rotate }] }]}>
-            <ImageBackground source={{ uri: item.image }} style={styles.image} imageStyle={styles.imageRadius}>
-              <View style={styles.overlay}>
-                <Text style={styles.cardTitle}>{item.title}</Text>
-                <Text style={styles.cardSubtitle}>{item.subtitle}</Text>
-              </View>
-            </ImageBackground>
-          </Animated.View>
+          <TouchableOpacity
+            activeOpacity={0.9}
+            onPress={() => onCardPress?.(item)}
+          >
+            <Animated.View
+              style={[
+                styles.card,
+                { transform: [{ scale }, { translateY }, { rotate }] },
+              ]}
+            >
+              <ImageBackground
+                source={{ uri: item.image }}
+                style={styles.image}
+                imageStyle={styles.imageRadius}
+              >
+                <View style={styles.overlay}>
+                  <Text style={styles.cardTitle}>{item.title}</Text>
+                  <Text style={styles.cardSubtitle}>{item.subtitle}</Text>
+                </View>
+              </ImageBackground>
+            </Animated.View>
+          </TouchableOpacity>
         );
       }}
     />

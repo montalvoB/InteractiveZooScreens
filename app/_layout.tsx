@@ -8,6 +8,10 @@ export default function RootLayout() {
         name="InfoCardsScreen"
         options={{ animation: "slide_from_right" }}
       />
+      <Stack.Screen
+        name="DragDropScreen"
+        options={{ animation: "slide_from_right" }}
+      />
     </Stack>
   );
 }
