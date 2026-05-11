@@ -37,11 +37,6 @@ export default function HomeScreen() {
   }, []);
 
   const handlePress = () => {
-    // Animated.timing(opacity, {
-    //   toValue: 0,
-    //   duration: 600,
-    //   useNativeDriver: true,
-    // }).start(() => router.push("/InfoCardsScreen"));
     router.push("/InfoCardsScreen");
   };
 
