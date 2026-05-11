@@ -10,17 +10,21 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
+import Ionicons from "@expo/vector-icons/Ionicons";
 
 const background = require("../assets/images/backgrounds/Beach.png");
 const iguana = require("../assets/images/elements/Iguana.png");
 
 function DraggableImage({
   image,
+  icon,
   label,
   onDropInsideBox,
   boxRef,
 }: {
-  image: any;
+  image?: any;
+  icon?: React.ReactNode;
   label: string;
   onDropInsideBox: () => void;
   boxRef: RefObject<View | null>;
@@ -78,11 +82,17 @@ function DraggableImage({
         },
       ]}
     >
-      <Image
-        source={image}
-        style={{ width: imageSize, height: imageSize }}
-        resizeMode="contain"
-      />
+      {icon ? (
+        <View style={{ width: imageSize, height: imageSize, alignItems: "center", justifyContent: "center" }}>
+          {icon}
+        </View>
+      ) : (
+        <Image
+          source={image}
+          style={{ width: imageSize, height: imageSize }}
+          resizeMode="contain"
+        />
+      )}
       <Text style={styles.dragLabel}>{label}</Text>
     </Animated.View>
   );
@@ -110,14 +120,14 @@ export default function DragDropScreen() {
             />
 
             <DraggableImage
-              image={iguana}
+              icon={<Ionicons name="flower" size={56} color="#e05fa0" />}
               label="Food"
               boxRef={boxRef}
               onDropInsideBox={() => setDroppedCount((count) => count + 1)}
             />
 
             <DraggableImage
-              image={iguana}
+              icon={<FontAwesome5 name="leaf" size={56} color="#3a8f3a" />}
               label="Leaf"
               boxRef={boxRef}
               onDropInsideBox={() => setDroppedCount((count) => count + 1)}
