@@ -15,7 +15,7 @@ export default function RootLayout() {
         options={{ animation: "slide_from_right" }}
       />
       <Stack.Screen
-        name="AnimalVisionScreen"
+        name="IguanaXRayScreen"
         options={{ animation: "slide_from_right" }}
       />
     </Stack>

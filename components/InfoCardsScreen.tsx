@@ -1,10 +1,10 @@
 import { router } from "expo-router";
 import {
-  ImageBackground,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
+    ImageBackground,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
 } from "react-native";
 import CarouselCards from "./CarouselCards";
 
@@ -27,6 +27,12 @@ const cards = [
     image:
       "https://images.unsplash.com/photo-1503919005314-30d93d07d823?q=80&w=1200",
   },
+  {
+    title: "X-Ray Vision",
+    subtitle: "Scan the iguana to see inside",
+    image:
+      "https://plus.unsplash.com/premium_vector-1731349578021-89791dc2989b?q=80&w=1548&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+  },
 ];
 
 const background = require("../assets/images/backgrounds/Beach.png");
@@ -46,6 +52,8 @@ export default function InfoCardsScreen() {
           onCardPress={(card) => {
             if (card.title === "Animal Vision") {
               router.push("/DragDropScreen");
+            } else if (card.title === "X-Ray Vision") {
+              router.push("/IguanaXRayScreen");
             }
           }}
         />
