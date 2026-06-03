@@ -374,7 +374,10 @@ export default function HomeScreen() {
           <View style={styles.buttonsWrapper}>
             <TouchableOpacity
               style={styles.actionBtn}
-              onPress={() => resetIdleTimer()}
+              onPress={() => {
+                resetIdleTimer();
+                router.push("/IguanaXRayScreen");
+              }}
             >
               <Text style={styles.actionBtnText}>Begin x-ray checkup</Text>
               <FontAwesome5 name="chevron-right" size={12} color="#fff" />

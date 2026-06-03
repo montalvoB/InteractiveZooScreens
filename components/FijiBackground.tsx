@@ -79,13 +79,6 @@ interface ScrollLayerProps {
   animX: Animated.Value;
   top: number;
   height: number;
-}
-
-interface ScrollLayerProps {
-  source: ImageSourcePropType;
-  animX: Animated.Value;
-  top: number;
-  height: number;
   resizeMode?: "stretch" | "contain" | "cover";
 }
 
@@ -96,8 +89,6 @@ function ScrollLayer({
   height,
   resizeMode = "stretch",
 }: ScrollLayerProps) {
-  const { width: imgW } = Image.resolveAssetSource(source);
-
   return (
     <Animated.View
       style={[
@@ -107,12 +98,12 @@ function ScrollLayer({
     >
       <Image
         source={source}
-        style={{ width: imgW, height }}
+        style={{ width: SW, height }}
         resizeMode={resizeMode}
       />
       <Image
         source={source}
-        style={{ width: imgW, height }}
+        style={{ width: SW, height }}
         resizeMode={resizeMode}
       />
     </Animated.View>
@@ -131,12 +122,10 @@ function StaticLayer({
   top,
   height,
 }: StaticLayerProps): React.ReactElement {
-  const { width: imgW } = Image.resolveAssetSource(source);
-
   return (
     <Image
       source={source}
-      style={[styles.staticLayer, { top, height, width: imgW }]}
+      style={[styles.staticLayer, { top, height, width: SW }]}
       resizeMode="stretch"
     />
   );
@@ -150,23 +139,11 @@ interface FijiBackgroundProps {
 export default function FijiBackground({
   children,
 }: FijiBackgroundProps): React.ReactElement {
-  // Resolve natural image widths for seamless loop points
-  const imgW = {
-    clouds: Image.resolveAssetSource(ASSETS.clouds).width,
-    mountainBack: Image.resolveAssetSource(ASSETS.mountainBack).width,
-    mountainMid: Image.resolveAssetSource(ASSETS.mountainMid).width,
-    mountainFront: Image.resolveAssetSource(ASSETS.mountainFront).width,
-    sand: Image.resolveAssetSource(ASSETS.sand).width,
-  };
-
-  const xClouds = useScrollAnim(SPEEDS.clouds, imgW.clouds);
-  const xMountainBack = useScrollAnim(SPEEDS.mountainBack, imgW.mountainBack);
-  const xMountainMid = useScrollAnim(SPEEDS.mountainMid, imgW.mountainMid);
-  const xMountainFront = useScrollAnim(
-    SPEEDS.mountainFront,
-    imgW.mountainFront,
-  );
-  const xSand = useScrollAnim(SPEEDS.sand, imgW.sand);
+  const xClouds = useScrollAnim(SPEEDS.clouds);
+  const xMountainBack = useScrollAnim(SPEEDS.mountainBack);
+  const xMountainMid = useScrollAnim(SPEEDS.mountainMid);
+  const xMountainFront = useScrollAnim(SPEEDS.mountainFront);
+  const xSand = useScrollAnim(SPEEDS.sand);
 
   return (
     <View style={styles.container}>

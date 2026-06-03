@@ -250,7 +250,7 @@ export default function IguanaXRayScreen() {
       )}
 
       <TouchableOpacity
-        onPress={() => router.push("/InfoCardsScreen")}
+        onPress={() => router.back()}
         style={styles.backButton}
       >
         <Text style={styles.backButtonText}>← Back</Text>
