@@ -1,3 +1,5 @@
+import { ActionButton, ExploreButton } from "@/components/ui/Buttons";
+import { Colors } from "@/constants/theme";
 import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
 import { useFocusEffect, useRouter } from "expo-router";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -15,7 +17,7 @@ const background = require("../assets/images/backgrounds/Beach.png");
 const iguana = require("../assets/images/elements/Iguana.png");
 const foreground = require("../assets/images/backgrounds/BeachForeground.png");
 
-const IDLE_TIMEOUT_MS = 10_000;
+const IDLE_TIMEOUT_MS = 30_000;
 
 const RESEARCH_CARDS = [
   {
@@ -108,10 +110,11 @@ export default function HomeScreen() {
   );
 
   useEffect(() => {
+    ``;
     const loop = Animated.loop(
       Animated.sequence([
         Animated.timing(pulse, {
-          toValue: 1.2,
+          toValue: 1.03,
           duration: 700,
           useNativeDriver: true,
         }),
@@ -244,21 +247,21 @@ export default function HomeScreen() {
           resizeMode="contain"
         />
 
-        {/* Initial state: name header + tap hint */}
+        {/* Initial state: name header + CTA button */}
         {!isExpanded && (
           <>
             <View style={styles.header}>
-              <Text style={styles.commonName}>Fiji Banded Iguana</Text>
-              <View style={styles.scientificNameBadge}>
-                <Text style={styles.scientificName}>Brachylophus Bulabula</Text>
-              </View>
+              <Text style={styles.commonName}>FIJI BANDED IGUANA</Text>
+              <Text style={styles.scientificName}>Brachylophus bulabula</Text>
             </View>
-            <View style={styles.hint}>
-              <Animated.View style={{ transform: [{ scale: pulse }] }}>
-                <FontAwesome5 name="hand-point-up" size={60} color="black" />
-              </Animated.View>
-              <Text>Tap to learn more!</Text>
-            </View>
+            <Animated.View
+              style={[styles.ctaWrapper, { transform: [{ scale: pulse }] }]}
+            >
+              <ExploreButton
+                label="TAP TO EXPLORE AS A CONSERVATION RESEARCHER"
+                onPress={expand}
+              />
+            </Animated.View>
           </>
         )}
 
@@ -370,28 +373,24 @@ export default function HomeScreen() {
             </Text>
           </View>
 
-          {/* Action buttons — right-aligned, below iguana */}
+          {/* Action buttons */}
           <View style={styles.buttonsWrapper}>
-            <TouchableOpacity
-              style={styles.actionBtn}
+            <ActionButton
+              label="Begin x-ray checkup"
+              color="yellow"
               onPress={() => {
                 resetIdleTimer();
                 router.push("/IguanaXRayScreen");
               }}
-            >
-              <Text style={styles.actionBtnText}>Begin x-ray checkup</Text>
-              <FontAwesome5 name="chevron-right" size={12} color="#fff" />
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.actionBtn}
+            />
+            <ActionButton
+              label="Explore iguana eyesight"
+              color="orange"
               onPress={() => {
                 resetIdleTimer();
                 router.push("/AnimalVisionScreen");
               }}
-            >
-              <Text style={styles.actionBtnText}>Explore iguana eyesight</Text>
-              <FontAwesome5 name="chevron-right" size={12} color="#fff" />
-            </TouchableOpacity>
+            />
           </View>
         </Animated.View>
       </Animated.View>
@@ -447,39 +446,29 @@ const styles = StyleSheet.create({
   header: {
     alignItems: "center",
     position: "absolute",
-    top: "10%",
+    top: "6%",
     width: "100%",
     zIndex: 5,
   },
   commonName: {
-    fontSize: 32,
-    fontWeight: "600",
-    color: "#f5f5f0",
+    fontFamily: "NeueFrutigerWorld-Black",
+    fontSize: 28,
+    color: Colors.darkGreen,
     textAlign: "center",
-  },
-  scientificNameBadge: {
-    backgroundColor: "#e0e0e0",
-    borderRadius: 20,
-    paddingHorizontal: 20,
-    paddingVertical: 6,
-    marginTop: 10,
-    alignSelf: "center",
-    width: "50%",
+    letterSpacing: 1,
   },
   scientificName: {
+    fontFamily: "NeueFrutigerWorld-Regular",
     fontSize: 16,
-    fontStyle: "italic",
-    color: "#444",
+    color: Colors.darkGreen,
+    marginTop: 3,
     textAlign: "center",
   },
-  hint: {
-    top: "12%",
-    fontSize: 12,
-    color: "#555",
-    letterSpacing: 4,
-    textTransform: "uppercase",
-    alignItems: "center",
-    gap: 10,
+  ctaWrapper: {
+    position: "absolute",
+    bottom: "12%",
+    left: 24,
+    right: 24,
     zIndex: 5,
   },
   // Expanded panel
@@ -665,24 +654,9 @@ const styles = StyleSheet.create({
   },
   // Buttons
   buttonsWrapper: {
-    alignSelf: "stretch",
-    alignItems: "flex-end",
-    marginTop: 200,
+    position: "absolute",
+    bottom: "10%",
+    right: 12,
     gap: 7,
-  },
-  actionBtn: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    backgroundColor: "#E8860A",
-    borderRadius: 30,
-    paddingVertical: 9,
-    paddingHorizontal: 18,
-    width: "66%",
-  },
-  actionBtnText: {
-    fontSize: 13,
-    color: "#fff",
-    fontWeight: "600",
   },
 });
