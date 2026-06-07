@@ -37,12 +37,12 @@ export default function IslandView() {
         <FijiBackground />
 
         <Animated.View
-          style={[StyleSheet.absoluteFillObject, { opacity: blurOpacity }]}
+          style={[StyleSheet.absoluteFill, { opacity: blurOpacity }]}
         >
           <BlurView
             intensity={100}
             tint="dark"
-            style={StyleSheet.absoluteFillObject}
+            style={StyleSheet.absoluteFill}
           />
         </Animated.View>
       </Animated.View>

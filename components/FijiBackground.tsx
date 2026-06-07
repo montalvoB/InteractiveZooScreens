@@ -89,6 +89,8 @@ function ScrollLayer({
   height,
   resizeMode = "stretch",
 }: ScrollLayerProps) {
+  const { width: imgW } = Image.resolveAssetSource(source);
+
   return (
     <Animated.View
       style={[
@@ -98,12 +100,12 @@ function ScrollLayer({
     >
       <Image
         source={source}
-        style={{ width: SW, height }}
+        style={{ width: imgW, height }}
         resizeMode={resizeMode}
       />
       <Image
         source={source}
-        style={{ width: SW, height }}
+        style={{ width: imgW, height }}
         resizeMode={resizeMode}
       />
     </Animated.View>
@@ -122,10 +124,12 @@ function StaticLayer({
   top,
   height,
 }: StaticLayerProps): React.ReactElement {
+  const { width: imgW } = Image.resolveAssetSource(source);
+
   return (
     <Image
       source={source}
-      style={[styles.staticLayer, { top, height, width: SW }]}
+      style={[styles.staticLayer, { top, height, width: imgW }]}
       resizeMode="stretch"
     />
   );
@@ -139,11 +143,23 @@ interface FijiBackgroundProps {
 export default function FijiBackground({
   children,
 }: FijiBackgroundProps): React.ReactElement {
-  const xClouds = useScrollAnim(SPEEDS.clouds);
-  const xMountainBack = useScrollAnim(SPEEDS.mountainBack);
-  const xMountainMid = useScrollAnim(SPEEDS.mountainMid);
-  const xMountainFront = useScrollAnim(SPEEDS.mountainFront);
-  const xSand = useScrollAnim(SPEEDS.sand);
+  // Resolve natural image widths for seamless loop points
+  const imgW = {
+    clouds: Image.resolveAssetSource(ASSETS.clouds).width,
+    mountainBack: Image.resolveAssetSource(ASSETS.mountainBack).width,
+    mountainMid: Image.resolveAssetSource(ASSETS.mountainMid).width,
+    mountainFront: Image.resolveAssetSource(ASSETS.mountainFront).width,
+    sand: Image.resolveAssetSource(ASSETS.sand).width,
+  };
+
+  const xClouds = useScrollAnim(SPEEDS.clouds, imgW.clouds);
+  const xMountainBack = useScrollAnim(SPEEDS.mountainBack, imgW.mountainBack);
+  const xMountainMid = useScrollAnim(SPEEDS.mountainMid, imgW.mountainMid);
+  const xMountainFront = useScrollAnim(
+    SPEEDS.mountainFront,
+    imgW.mountainFront,
+  );
+  const xSand = useScrollAnim(SPEEDS.sand, imgW.sand);
 
   return (
     <View style={styles.container}>
@@ -186,13 +202,13 @@ export default function FijiBackground({
         height={H.clouds * SH}
         resizeMode="contain"
       />
+
       {/* 5. Water — deep first, shallow on top */}
       <StaticLayer
         source={ASSETS.waterShallow}
         top={Y.waterShallow * SH}
         height={H.waterShallow * SH}
       />
-
       <StaticLayer
         source={ASSETS.waterMid}
         top={Y.waterMid * SH}
@@ -217,7 +233,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#3ecfea",
   },
   sky: {
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
     backgroundColor: "#3ecfea",
   },
   scrollLayer: {
@@ -230,6 +246,6 @@ const styles = StyleSheet.create({
     left: 0,
   },
   content: {
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
   },
 });
