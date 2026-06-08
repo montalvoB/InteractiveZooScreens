@@ -1,7 +1,16 @@
-import { useRef } from 'react';
-import { View, Text, Animated, StyleSheet, Dimensions, ImageBackground, useWindowDimensions, TouchableOpacity} from 'react-native';
+import { Colors } from "@/constants/theme";
+import { useRef } from "react";
+import {
+  Animated,
+  Dimensions,
+  ImageBackground,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 
-const { width, height } = Dimensions.get('window');
+const { width, height } = Dimensions.get("window");
 
 const CARD_WIDTH = width * 0.72;
 const CARD_HEIGHT = height * 0.48;
@@ -19,7 +28,10 @@ type CarouselCardsProps = {
   onCardPress?: (card: CarouselCardItem) => void;
 };
 
-export default function CarouselCards({ cards, onCardPress }: CarouselCardsProps){
+export default function CarouselCards({
+  cards,
+  onCardPress,
+}: CarouselCardsProps) {
   const scrollX = useRef(new Animated.Value(0)).current;
 
   return (
@@ -35,7 +47,7 @@ export default function CarouselCards({ cards, onCardPress }: CarouselCardsProps
       contentContainerStyle={styles.carouselContent}
       onScroll={Animated.event(
         [{ nativeEvent: { contentOffset: { x: scrollX } } }],
-        { useNativeDriver: true }
+        { useNativeDriver: true },
       )}
       scrollEventThrottle={16}
       renderItem={({ item, index }) => {
@@ -45,9 +57,21 @@ export default function CarouselCards({ cards, onCardPress }: CarouselCardsProps
           (index + 1) * SNAP_INTERVAL,
         ];
 
-        const scale = scrollX.interpolate({ inputRange, outputRange: [0.9, 1, 0.9], extrapolate: 'clamp' });
-        const translateY = scrollX.interpolate({ inputRange, outputRange: [22, 0, 22], extrapolate: 'clamp' });
-        const rotate = scrollX.interpolate({ inputRange, outputRange: ['-3deg', '0deg', '3deg'], extrapolate: 'clamp' });
+        const scale = scrollX.interpolate({
+          inputRange,
+          outputRange: [0.9, 1, 0.9],
+          extrapolate: "clamp",
+        });
+        const translateY = scrollX.interpolate({
+          inputRange,
+          outputRange: [22, 0, 22],
+          extrapolate: "clamp",
+        });
+        const rotate = scrollX.interpolate({
+          inputRange,
+          outputRange: ["-3deg", "0deg", "3deg"],
+          extrapolate: "clamp",
+        });
 
         return (
           <TouchableOpacity
@@ -80,7 +104,7 @@ export default function CarouselCards({ cards, onCardPress }: CarouselCardsProps
 
 const styles = StyleSheet.create({
   list: {
-    width: '100%',
+    width: "100%",
     flexGrow: 0,
   },
   carouselContent: {
@@ -92,37 +116,38 @@ const styles = StyleSheet.create({
     height: CARD_HEIGHT,
     marginRight: SPACING,
     borderRadius: 8,
-    backgroundColor: '#111',
-    shadowColor: '#000',
+    backgroundColor: Colors.darkGreen,
+    shadowColor: "#000",
     shadowOpacity: 0.45,
     shadowRadius: 14,
     shadowOffset: { width: 0, height: 10 },
     elevation: 10,
-    overflow: 'hidden',
+    overflow: "hidden",
   },
   image: {
     flex: 1,
-    justifyContent: 'flex-end',
+    justifyContent: "flex-end",
   },
   imageRadius: {
     borderRadius: 8,
   },
   overlay: {
-    backgroundColor: 'rgba(0,0,0,0.72)',
+    backgroundColor: "rgba(0,0,0,0.72)",
     paddingHorizontal: 22,
     paddingVertical: 20,
   },
   cardTitle: {
-    color: '#fff',
+    fontFamily: "NeueFrutigerWorld-Black",
     fontSize: 20,
-    fontWeight: '800',
-    textTransform: 'uppercase',
+    color: Colors.cream,
+    textTransform: "uppercase",
     letterSpacing: 1,
   },
   cardSubtitle: {
-    color: '#cfcfcf',
+    fontFamily: "NeueFrutigerWorld-Regular",
     fontSize: 16,
-    fontStyle: 'italic',
+    fontStyle: "italic",
+    color: Colors.cream,
     marginTop: 8,
   },
 });

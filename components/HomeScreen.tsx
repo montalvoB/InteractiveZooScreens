@@ -1,3 +1,5 @@
+import { ActionButton, ExploreButton } from "@/components/ui/Buttons";
+import { Colors } from "@/constants/theme";
 import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
 import { useFocusEffect, useRouter } from "expo-router";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -15,7 +17,7 @@ const background = require("../assets/images/backgrounds/Beach.png");
 const iguana = require("../assets/images/elements/Iguana.png");
 const foreground = require("../assets/images/backgrounds/BeachForeground.png");
 
-const IDLE_TIMEOUT_MS = 10_000;
+const IDLE_TIMEOUT_MS = 30_000;
 
 const RESEARCH_CARDS = [
   {
@@ -65,6 +67,9 @@ const STATUS_COLORS = [
   "#F44336",
 ];
 
+// Mirrors the carousel snap interval concept — 1 unit = 1 card
+const CARD_ANIM_UNIT = 1;
+
 export default function HomeScreen() {
   const opacity = useRef(new Animated.Value(0)).current;
   const pulse = useRef(new Animated.Value(1)).current;
@@ -77,11 +82,16 @@ export default function HomeScreen() {
   const iguanaTranslateY = useRef(new Animated.Value(0)).current;
   const overlayOpacity = useRef(new Animated.Value(0)).current;
   const panelOpacity = useRef(new Animated.Value(0)).current;
+
+  // Drives the card enter/exit animation 
+  const cardAnim = useRef(new Animated.Value(0)).current;
+
   const [isExpanded, setIsExpanded] = useState(false);
   const [cardIndex, setCardIndex] = useState(0);
   const router = useRouter();
   const idleTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const pulseLoop = useRef<Animated.CompositeAnimation | null>(null);
+  const [displayIndex, setDisplayIndex] = useState(0);
 
   const resetIdleTimer = useCallback(() => {
     if (idleTimer.current) clearTimeout(idleTimer.current);
@@ -111,7 +121,7 @@ export default function HomeScreen() {
     const loop = Animated.loop(
       Animated.sequence([
         Animated.timing(pulse, {
-          toValue: 1.2,
+          toValue: 1.03,
           duration: 700,
           useNativeDriver: true,
         }),
@@ -126,6 +136,30 @@ export default function HomeScreen() {
     loop.start();
     return () => loop.stop();
   }, []);
+
+  const navigateCard = (nextIndex: number) => {
+    const direction = nextIndex > cardIndex ? 1 : -1;
+    setCardIndex(nextIndex);
+    resetIdleTimer();
+
+    // Slide current card out
+    Animated.timing(cardAnim, {
+      toValue: -direction * CARD_ANIM_UNIT, // exit to opposite side
+      duration: 300,
+      useNativeDriver: true,
+    }).start(() => {
+      // Swap content and snap to incoming side
+      setDisplayIndex(nextIndex);
+      cardAnim.setValue(direction * CARD_ANIM_UNIT);
+
+      // Slide new card in to center
+      Animated.timing(cardAnim, {
+        toValue: 0,
+        duration: 300,
+        useNativeDriver: true,
+      }).start();
+    });
+  };
 
   const expand = () => {
     if (isExpanded) return;
@@ -145,13 +179,13 @@ export default function HomeScreen() {
         useNativeDriver: true,
       }),
       Animated.spring(fgTranslateX, {
-        toValue: -40, // negative = left, positive = right
+        toValue: -40,
         friction: 8,
         tension: 25,
         useNativeDriver: true,
       }),
       Animated.spring(fgTranslateY, {
-        toValue: 180, // negative = up, positive = down
+        toValue: 180,
         friction: 8,
         tension: 25,
         useNativeDriver: true,
@@ -188,26 +222,42 @@ export default function HomeScreen() {
     ]).start();
   };
 
+  const inputRange = [-CARD_ANIM_UNIT, 0, CARD_ANIM_UNIT];
+  const cardScale = cardAnim.interpolate({
+    inputRange,
+    outputRange: [0.9, 1, 0.9],
+    extrapolate: "clamp",
+  });
+  const cardTranslateX = cardAnim.interpolate({
+    inputRange,
+    outputRange: [-500, 0, 500],
+    extrapolate: "clamp",
+  });
+  const cardRotate = cardAnim.interpolate({
+    inputRange,
+    outputRange: ["-3deg", "0deg", "3deg"],
+    extrapolate: "clamp",
+  });
   return (
     <TouchableWithoutFeedback onPress={expand}>
       <Animated.View
         style={[styles.container, { opacity }]}
         onTouchStart={resetIdleTimer}
       >
-        {/* Background — scaled independently for zoom effect */}
+        {/* Background */}
         <Animated.Image
           source={background}
           style={[styles.bgImage, { transform: [{ scale: bgScale }] }]}
           resizeMode="cover"
         />
 
-        {/* Dark overlay — sits above background, below iguana */}
+        {/* Dark overlay */}
         <Animated.View
           style={[styles.overlay, { opacity: overlayOpacity }]}
           pointerEvents="none"
         />
 
-        {/* Foreground vegetation — zooms in with background */}
+        {/* Foreground vegetation */}
         <Animated.View
           style={[
             styles.foregroundWrapper,
@@ -228,7 +278,7 @@ export default function HomeScreen() {
           />
         </Animated.View>
 
-        {/* Iguana — animated zoom on tap */}
+        {/* Iguana */}
         <Animated.Image
           source={iguana}
           style={[
@@ -244,21 +294,21 @@ export default function HomeScreen() {
           resizeMode="contain"
         />
 
-        {/* Initial state: name header + tap hint */}
+        {/* Initial state */}
         {!isExpanded && (
           <>
             <View style={styles.header}>
-              <Text style={styles.commonName}>Fiji Banded Iguana</Text>
-              <View style={styles.scientificNameBadge}>
-                <Text style={styles.scientificName}>Brachylophus Bulabula</Text>
-              </View>
+              <Text style={styles.commonName}>FIJI BANDED IGUANA</Text>
+              <Text style={styles.scientificName}>Brachylophus bulabula</Text>
             </View>
-            <View style={styles.hint}>
-              <Animated.View style={{ transform: [{ scale: pulse }] }}>
-                <FontAwesome5 name="hand-point-up" size={60} color="black" />
-              </Animated.View>
-              <Text>Tap to learn more!</Text>
-            </View>
+            <Animated.View
+              style={[styles.ctaWrapper, { transform: [{ scale: pulse }] }]}
+            >
+              <ExploreButton
+                label="TAP TO EXPLORE AS A CONSERVATION RESEARCHER"
+                onPress={expand}
+              />
+            </Animated.View>
           </>
         )}
 
@@ -269,7 +319,11 @@ export default function HomeScreen() {
         >
           {/* Station badge */}
           <View style={styles.stationBadge}>
-            <FontAwesome5 name="broadcast-tower" size={11} color="#444" />
+            <FontAwesome5
+              name="broadcast-tower"
+              size={11}
+              color={Colors.brown}
+            />
             <Text style={styles.stationText}>
               Welcome to the Research Station
             </Text>
@@ -300,35 +354,46 @@ export default function HomeScreen() {
             <Text style={styles.endangeredLabel}>Endangered</Text>
           </View>
 
-          {/* Research notes card with arrow navigation */}
+          {/* Research notes card with carousel-style animation */}
           <View style={styles.cardRow}>
             <TouchableOpacity
-              onPress={() => {
-                setCardIndex((i) => Math.max(0, i - 1));
-                resetIdleTimer();
-              }}
+              onPress={() => navigateCard(Math.max(0, cardIndex - 1))}
               style={styles.arrowBtn}
               disabled={cardIndex === 0}
             >
               <FontAwesome5
                 name="chevron-left"
                 size={16}
-                color={cardIndex === 0 ? "#ffffff44" : "#fff"}
+                color={cardIndex === 0 ? "#ffffff44" : Colors.cream}
               />
             </TouchableOpacity>
 
-            <View style={styles.researchCard}>
+            <Animated.View
+              style={[
+                styles.researchCard,
+                {
+                  transform: [
+                    { scale: cardScale },
+                    { translateX: cardTranslateX },
+                    { rotate: cardRotate },
+                  ],
+                },
+              ]}
+            >
               <View style={styles.cardHeader}>
-                <FontAwesome5 name="clipboard" size={11} color="#999" />
+                <FontAwesome5 name="clipboard" size={11} color={Colors.green} />
                 <Text style={styles.cardHeaderText}>RESEARCH NOTES</Text>
               </View>
               <View style={styles.cardBody}>
                 <View style={styles.cardTextCol}>
                   <Text style={styles.cardTitle}>
-                    {RESEARCH_CARDS[cardIndex].title}
+                    {RESEARCH_CARDS[displayIndex].title}
                   </Text>
-                  <Text style={styles.cardDesc}>
-                    {RESEARCH_CARDS[cardIndex].description}
+                  <Text
+                    style={styles.cardDesc}
+                    ellipsizeMode="tail"
+                  >
+                    {RESEARCH_CARDS[displayIndex].description}
                   </Text>
                 </View>
                 <Image
@@ -337,13 +402,12 @@ export default function HomeScreen() {
                   resizeMode="contain"
                 />
               </View>
-            </View>
+            </Animated.View>
 
             <TouchableOpacity
-              onPress={() => {
-                setCardIndex((i) => Math.min(RESEARCH_CARDS.length - 1, i + 1));
-                resetIdleTimer();
-              }}
+              onPress={() =>
+                navigateCard(Math.min(RESEARCH_CARDS.length - 1, cardIndex + 1))
+              }
               style={styles.arrowBtn}
               disabled={cardIndex === RESEARCH_CARDS.length - 1}
             >
@@ -351,13 +415,15 @@ export default function HomeScreen() {
                 name="chevron-right"
                 size={16}
                 color={
-                  cardIndex === RESEARCH_CARDS.length - 1 ? "#ffffff44" : "#fff"
+                  cardIndex === RESEARCH_CARDS.length - 1
+                    ? "#ffffff44"
+                    : Colors.cream
                 }
               />
             </TouchableOpacity>
           </View>
 
-          {/* Pagination dots + count */}
+          {/* Pagination dots */}
           <View style={styles.pagination}>
             {RESEARCH_CARDS.map((_, i) => (
               <View
@@ -370,28 +436,24 @@ export default function HomeScreen() {
             </Text>
           </View>
 
-          {/* Action buttons — right-aligned, below iguana */}
+          {/* Action buttons */}
           <View style={styles.buttonsWrapper}>
-            <TouchableOpacity
-              style={styles.actionBtn}
+            <ActionButton
+              label="Begin x-ray checkup"
+              color="yellow"
               onPress={() => {
                 resetIdleTimer();
                 router.push("/IguanaXRayScreen");
               }}
-            >
-              <Text style={styles.actionBtnText}>Begin x-ray checkup</Text>
-              <FontAwesome5 name="chevron-right" size={12} color="#fff" />
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.actionBtn}
+            />
+            <ActionButton
+              label="Explore iguana eyesight"
+              color="orange"
               onPress={() => {
                 resetIdleTimer();
                 router.push("/AnimalVisionScreen");
               }}
-            >
-              <Text style={styles.actionBtnText}>Explore iguana eyesight</Text>
-              <FontAwesome5 name="chevron-right" size={12} color="#fff" />
-            </TouchableOpacity>
+            />
           </View>
         </Animated.View>
       </Animated.View>
@@ -443,46 +505,39 @@ const styles = StyleSheet.create({
     height: "58%",
     zIndex: 3,
   },
-  // Initial state
+
+  // -- Initial state
   header: {
     alignItems: "center",
     position: "absolute",
-    top: "10%",
+    top: "6%",
     width: "100%",
     zIndex: 5,
   },
   commonName: {
-    fontSize: 32,
-    fontWeight: "600",
-    color: "#f5f5f0",
+    fontFamily: "NeueFrutigerWorld-Black",
+    fontSize: 28,
+    color: Colors.darkGreen,
     textAlign: "center",
-  },
-  scientificNameBadge: {
-    backgroundColor: "#e0e0e0",
-    borderRadius: 20,
-    paddingHorizontal: 20,
-    paddingVertical: 6,
-    marginTop: 10,
-    alignSelf: "center",
-    width: "50%",
+    letterSpacing: 1,
   },
   scientificName: {
+    fontFamily: "NeueFrutigerWorld-Regular",
     fontSize: 16,
     fontStyle: "italic",
-    color: "#444",
+    color: Colors.darkGreen,
+    marginTop: 3,
     textAlign: "center",
   },
-  hint: {
-    top: "12%",
-    fontSize: 12,
-    color: "#555",
-    letterSpacing: 4,
-    textTransform: "uppercase",
-    alignItems: "center",
-    gap: 10,
+  ctaWrapper: {
+    position: "absolute",
+    bottom: "12%",
+    left: 24,
+    right: 24,
     zIndex: 5,
   },
-  // Expanded panel
+
+  // -- Expanded panel
   infoPanel: {
     position: "absolute",
     top: 0,
@@ -497,21 +552,21 @@ const styles = StyleSheet.create({
   stationBadge: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "rgba(255,255,255,0.92)",
+    backgroundColor: Colors.cream,
     borderRadius: 20,
     paddingHorizontal: 12,
     paddingVertical: 5,
     gap: 6,
   },
   stationText: {
+    fontFamily: "NeueFrutigerWorld-Regular",
     fontSize: 12,
-    color: "#333",
-    fontWeight: "500",
+    color: Colors.brown,
   },
   animalName: {
+    fontFamily: "NeueFrutigerWorld-Black",
     fontSize: 34,
-    fontWeight: "800",
-    color: "#fff",
+    color: Colors.cream,
     textAlign: "center",
     marginTop: 8,
     letterSpacing: 1,
@@ -520,20 +575,23 @@ const styles = StyleSheet.create({
     textShadowRadius: 4,
   },
   scientificNameExpanded: {
+    fontFamily: "NeueFrutigerWorld-Regular",
     fontSize: 15,
     fontStyle: "italic",
-    color: "#ddd",
-    fontWeight: "600",
+    color: Colors.cream,
     marginTop: 1,
   },
+
+  // -- Conservation bar
   conservationBlock: {
     width: "100%",
     marginTop: 10,
     paddingHorizontal: 2,
   },
   conservationLabel: {
+    fontFamily: "NationalPark-Regular",
     fontSize: 11,
-    color: "#ccc",
+    color: Colors.cream,
     marginBottom: 5,
     letterSpacing: 0.4,
   },
@@ -555,7 +613,6 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 5,
     borderBottomRightRadius: 5,
   },
-  // Marker sits at ~61% (the "Endangered" position on the IUCN scale)
   statusMarker: {
     position: "absolute",
     left: "61%",
@@ -563,25 +620,28 @@ const styles = StyleSheet.create({
     width: 18,
     height: 18,
     borderRadius: 9,
-    backgroundColor: "#fff",
+    backgroundColor: Colors.cream,
     borderWidth: 2,
-    borderColor: "#555",
+    borderColor: Colors.brown,
     transform: [{ translateX: -9 }],
   },
   endangeredLabel: {
+    fontFamily: "NationalPark-Regular",
     fontSize: 10,
-    color: "#ddd",
+    color: Colors.cream,
     marginTop: 3,
     alignSelf: "flex-start",
     marginLeft: "57%",
   },
-  // Card carousel
+
+  // -- Research card
   cardRow: {
     flexDirection: "row",
     alignItems: "center",
     width: "100%",
     marginTop: 12,
     gap: 2,
+    height: 200,
   },
   arrowBtn: {
     width: 30,
@@ -591,7 +651,7 @@ const styles = StyleSheet.create({
   },
   researchCard: {
     flex: 1,
-    backgroundColor: "#fff",
+    backgroundColor: Colors.cream,
     borderRadius: 14,
     padding: 14,
     shadowColor: "#000",
@@ -599,6 +659,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.22,
     shadowRadius: 8,
     elevation: 6,
+    height: 180,
   },
   cardHeader: {
     flexDirection: "row",
@@ -606,13 +667,13 @@ const styles = StyleSheet.create({
     gap: 5,
     marginBottom: 7,
     borderBottomWidth: 1,
-    borderBottomColor: "#f0f0f0",
+    borderBottomColor: Colors.green,
     paddingBottom: 6,
   },
   cardHeaderText: {
+    fontFamily: "NeueFrutigerWorld-Bold",
     fontSize: 10,
-    color: "#aaa",
-    fontWeight: "700",
+    color: Colors.green,
     letterSpacing: 1.5,
   },
   cardBody: {
@@ -624,22 +685,25 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   cardTitle: {
+    fontFamily: "NeueFrutigerWorld-Bold",
     fontSize: 17,
-    fontWeight: "700",
-    color: "#1a1a1a",
+    color: Colors.darkGreen,
     marginBottom: 5,
   },
   cardDesc: {
+    fontFamily: "NationalPark-Regular",
     fontSize: 13,
-    color: "#555",
+    color: Colors.green,
     lineHeight: 19,
   },
   cardThumb: {
     width: 78,
     height: 78,
     borderRadius: 8,
-    backgroundColor: "#f5f5f5",
+    backgroundColor: Colors.cream,
   },
+
+  // -- Pagination
   pagination: {
     flexDirection: "row",
     alignItems: "center",
@@ -656,33 +720,20 @@ const styles = StyleSheet.create({
     width: 8,
     height: 8,
     borderRadius: 4,
-    backgroundColor: "#fff",
+    backgroundColor: Colors.cream,
   },
   pageNum: {
+    fontFamily: "NationalPark-Regular",
     fontSize: 11,
-    color: "#ddd",
+    color: Colors.cream,
     marginLeft: 4,
   },
-  // Buttons
+
+  // -- Action buttons
   buttonsWrapper: {
-    alignSelf: "stretch",
-    alignItems: "flex-end",
-    marginTop: 200,
+    position: "absolute",
+    bottom: "10%",
+    right: 12,
     gap: 7,
-  },
-  actionBtn: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    backgroundColor: "#E8860A",
-    borderRadius: 30,
-    paddingVertical: 9,
-    paddingHorizontal: 18,
-    width: "66%",
-  },
-  actionBtnText: {
-    fontSize: 13,
-    color: "#fff",
-    fontWeight: "600",
   },
 });
