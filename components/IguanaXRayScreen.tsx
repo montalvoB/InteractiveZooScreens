@@ -1,3 +1,4 @@
+import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
 import { router } from "expo-router";
 import { useMemo, useState } from "react";
 import {
@@ -9,6 +10,7 @@ import {
   View,
   useWindowDimensions,
 } from "react-native";
+import { Colors } from "@/constants/theme";
 
 // Put these two files in: assets/images/elements/
 const normalIguanaPage = require("../assets/images/elements/img-normal.jpg");
@@ -178,8 +180,8 @@ export default function IguanaXRayScreen() {
       onResponderMove={(event) => {
         updateLens(event.nativeEvent.locationX, event.nativeEvent.locationY);
       }}
-      onResponderRelease={() => setScanning(false)}
-      onResponderTerminate={() => setScanning(false)}
+      onResponderRelease={() => undefined}
+      onResponderTerminate={() => undefined}
     >
       <Image
         source={normalIguanaPage}
@@ -243,18 +245,75 @@ export default function IguanaXRayScreen() {
         </View>
       )}
 
-      {!scanning && (
-        <View style={styles.hintOverlay} pointerEvents="none">
-          <Text style={styles.hintText}>Touch and drag to scan</Text>
-        </View>
-      )}
-
-      <TouchableOpacity
-        onPress={() => router.back()}
-        style={styles.backButton}
+      <View
+        pointerEvents="box-none"
+        style={[
+          styles.figmaHeader,
+          {
+            left: imageRect.left,
+            top: imageRect.top,
+            width: imageRect.width,
+            height: imageRect.height * 0.322,
+          },
+        ]}
       >
-        <Text style={styles.backButtonText}>← Back</Text>
-      </TouchableOpacity>
+        <Text style={styles.figmaTitle}>FIJI BANDED IGUANA</Text>
+        <Text style={styles.figmaSubtitle}>
+          Research Study: Fiji Banded Iguana X-Ray
+        </Text>
+        <Text style={styles.figmaCaption}>
+          Drag the scanner over the iguana to reveal its skeleton and learn about
+          its anatomy
+        </Text>
+        <TouchableOpacity
+          onPress={() => setScanning(true)}
+          activeOpacity={0.8}
+          style={[
+            styles.scannerButton,
+            scanning && styles.scannerButtonActive,
+          ]}
+        >
+          {scanning && (
+            <FontAwesome5
+              name="bone"
+              size={18}
+              color={Colors.white}
+              style={styles.scannerIcon}
+            />
+          )}
+          <Text style={styles.scannerButtonText}>
+            {scanning ? "Scanning... gathering research" : "TAP FOR THE SCANNER"}
+          </Text>
+        </TouchableOpacity>
+      </View>
+
+      <View
+        pointerEvents="box-none"
+        style={[
+          styles.bottomNav,
+          {
+            left: imageRect.left + imageRect.width * 0.04,
+            top: imageRect.top + imageRect.height * 0.887,
+            width: imageRect.width * 0.92,
+          },
+        ]}
+      >
+        <TouchableOpacity
+          onPress={() => router.replace("/HomeScreen")}
+          activeOpacity={0.8}
+          style={styles.backPill}
+        >
+          <FontAwesome5 name="chevron-left" size={22} color={Colors.darkGreen} />
+          <Text style={styles.backPillText}>Back to research station</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          onPress={() => router.push("/AnimalVisionScreen")}
+          activeOpacity={0.8}
+          style={styles.nextCircle}
+        >
+          <FontAwesome5 name="chevron-right" size={26} color={Colors.darkGreen} />
+        </TouchableOpacity>
+      </View>
     </View>
   );
 }
@@ -267,6 +326,59 @@ const styles = StyleSheet.create({
   },
   pageImage: {
     position: "absolute",
+  },
+  figmaHeader: {
+    position: "absolute",
+    zIndex: 25,
+    backgroundColor: Colors.cream,
+    borderBottomLeftRadius: 34,
+    borderBottomRightRadius: 34,
+    paddingHorizontal: "11.5%",
+    paddingTop: "11.5%",
+  },
+  figmaTitle: {
+    fontFamily: "NeueFrutigerWorld-Black",
+    fontSize: 29,
+    color: Colors.darkGreen,
+    letterSpacing: 0,
+  },
+  figmaSubtitle: {
+    fontFamily: "NeueFrutigerWorld-Bold",
+    fontSize: 16,
+    color: Colors.limeGreen,
+    marginTop: 14,
+  },
+  figmaCaption: {
+    fontFamily: "NationalPark-Regular",
+    fontSize: 10,
+    lineHeight: 14,
+    color: Colors.green,
+    marginTop: 8,
+    maxWidth: "90%",
+  },
+  scannerButton: {
+    position: "absolute",
+    left: "15%",
+    right: "15%",
+    bottom: "9%",
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: "#A6C600",
+    alignItems: "center",
+    justifyContent: "center",
+    flexDirection: "row",
+    paddingHorizontal: 18,
+  },
+  scannerButtonActive: {
+    justifyContent: "flex-start",
+  },
+  scannerIcon: {
+    marginRight: 18,
+  },
+  scannerButtonText: {
+    fontFamily: "NeueFrutigerWorld-Bold",
+    fontSize: 13,
+    color: Colors.darkGreen,
   },
   lensWrapper: {
     position: "absolute",
@@ -323,40 +435,34 @@ const styles = StyleSheet.create({
     color: "#296029",
     fontWeight: "700",
   },
-  hintOverlay: {
+  bottomNav: {
     position: "absolute",
-    bottom: 90,
-    left: 0,
-    right: 0,
+    zIndex: 25,
+    flexDirection: "row",
     alignItems: "center",
-    zIndex: 5,
+    justifyContent: "space-between",
   },
-  hintText: {
-    color: "rgba(180,230,160,0.9)",
-    fontSize: 16,
-    fontWeight: "700",
-    letterSpacing: 1,
-    backgroundColor: "rgba(0,0,0,0.35)",
-    paddingHorizontal: 18,
-    paddingVertical: 10,
-    borderRadius: 18,
-    overflow: "hidden",
+  backPill: {
+    minWidth: "50%",
+    height: 52,
+    borderRadius: 26,
+    backgroundColor: Colors.yellow,
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 22,
+    gap: 10,
   },
-  backButton: {
-    position: "absolute",
-    top: 54,
-    left: 18,
-    zIndex: 20,
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    borderRadius: 18,
-    backgroundColor: "rgba(0,0,0,0.55)",
+  backPillText: {
+    fontFamily: "NeueFrutigerWorld-Bold",
+    color: Colors.darkGreen,
+    fontSize: 14,
   },
-  backButtonText: {
-    color: "#fff",
-    fontSize: 13,
-    fontWeight: "800",
-    letterSpacing: 1,
-    textTransform: "uppercase",
+  nextCircle: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: Colors.yellow,
+    alignItems: "center",
+    justifyContent: "center",
   },
 });
