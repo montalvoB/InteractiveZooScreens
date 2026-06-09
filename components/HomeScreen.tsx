@@ -15,7 +15,6 @@ import {
 
 const background = require("../assets/images/backgrounds/Beach.png");
 const iguana = require("../assets/images/elements/Iguana.png");
-const iguanaPhoto = require("../assets/images/elements/fiji-banded-iguana-photo.jpg");
 const foreground = require("../assets/images/backgrounds/BeachForeground.png");
 
 const IDLE_TIMEOUT_MS = 30_000;
@@ -382,19 +381,8 @@ export default function HomeScreen() {
               ]}
             >
               <View style={styles.cardHeader}>
-                <View style={styles.cardIconCircle}>
-                  <FontAwesome5
-                    name="clipboard-list"
-                    size={15}
-                    color={Colors.darkGreen}
-                  />
-                </View>
-                <View>
-                  <Text style={styles.cardHeaderText}>
-                    FIELD OUTPOST RESEARCH NOTES
-                  </Text>
-                  <View style={styles.cardHeaderRule} />
-                </View>
+                <FontAwesome5 name="clipboard" size={11} color={Colors.green} />
+                <Text style={styles.cardHeaderText}>RESEARCH NOTES</Text>
               </View>
               <View style={styles.cardBody}>
                 <View style={styles.cardTextCol}>
@@ -407,30 +395,13 @@ export default function HomeScreen() {
                   >
                     {RESEARCH_CARDS[displayIndex].description}
                   </Text>
-                  <View style={styles.fieldNote}>
-                    <FontAwesome5 name="pen" size={8} color={Colors.black} />
-                    <Text style={styles.fieldNoteText}>
-                      Note: With these vibrant stripes, it is no wonder they are called banded iguanas.
-                    </Text>
-                  </View>
                 </View>
                 <Image
-                  source={iguanaPhoto}
+                  source={iguana}
                   style={styles.cardThumb}
-                  resizeMode="cover"
+                  resizeMode="contain"
                 />
               </View>
-              <View style={styles.cardPagination}>
-                {RESEARCH_CARDS.map((_, i) => (
-                  <View
-                    key={i}
-                    style={[styles.dot, i === cardIndex && styles.dotActive]}
-                  />
-                ))}
-              </View>
-              <Text style={styles.pageNum}>
-                {cardIndex + 1}/{RESEARCH_CARDS.length}
-              </Text>
             </Animated.View>
 
             <TouchableOpacity
@@ -450,6 +421,19 @@ export default function HomeScreen() {
                 }
               />
             </TouchableOpacity>
+          </View>
+
+          {/* Pagination dots */}
+          <View style={styles.pagination}>
+            {RESEARCH_CARDS.map((_, i) => (
+              <View
+                key={i}
+                style={[styles.dot, i === cardIndex && styles.dotActive]}
+              />
+            ))}
+            <Text style={styles.pageNum}>
+              {cardIndex + 1}/{RESEARCH_CARDS.length}
+            </Text>
           </View>
 
           {/* Action buttons */}
@@ -655,109 +639,71 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     width: "100%",
-    marginTop: 14,
-    gap: 4,
-    height: 238,
+    marginTop: 12,
+    gap: 2,
+    height: 200,
   },
   arrowBtn: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
+    width: 30,
+    height: 48,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "rgba(36, 68, 45, 0.78)",
   },
   researchCard: {
     flex: 1,
     backgroundColor: Colors.cream,
-    borderRadius: 8,
-    padding: 16,
+    borderRadius: 14,
+    padding: 14,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.22,
     shadowRadius: 8,
     elevation: 6,
-    height: 220,
+    height: 180,
   },
   cardHeader: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 12,
-    marginBottom: 18,
-  },
-  cardIconCircle: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "rgba(103,139,61,0.22)",
+    gap: 5,
+    marginBottom: 7,
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.green,
+    paddingBottom: 6,
   },
   cardHeaderText: {
     fontFamily: "NeueFrutigerWorld-Bold",
-    fontSize: 8,
-    color: Colors.darkGreen,
-    letterSpacing: 0.3,
-  },
-  cardHeaderRule: {
-    width: 30,
-    height: 2,
-    marginTop: 8,
-    backgroundColor: Colors.darkGreen,
+    fontSize: 10,
+    color: Colors.green,
+    letterSpacing: 1.5,
   },
   cardBody: {
     flexDirection: "row",
-    gap: 13,
+    gap: 10,
     alignItems: "flex-start",
   },
   cardTextCol: {
     flex: 1,
   },
   cardTitle: {
-    fontFamily: "NeueFrutigerWorld-Black",
-    fontSize: 18,
+    fontFamily: "NeueFrutigerWorld-Bold",
+    fontSize: 17,
     color: Colors.darkGreen,
-    marginBottom: 11,
+    marginBottom: 5,
   },
   cardDesc: {
     fontFamily: "NationalPark-Regular",
-    fontSize: 10,
+    fontSize: 13,
     color: Colors.green,
-    lineHeight: 15,
-  },
-  fieldNote: {
-    marginTop: 12,
-    minHeight: 27,
-    borderRadius: 14,
-    paddingHorizontal: 9,
-    paddingVertical: 5,
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 6,
-    backgroundColor: "rgba(255,255,255,0.75)",
-  },
-  fieldNoteText: {
-    flex: 1,
-    fontFamily: "NationalPark-Regular",
-    fontSize: 6,
-    lineHeight: 8,
-    color: Colors.darkGreen,
+    lineHeight: 19,
   },
   cardThumb: {
-    width: 104,
-    height: 112,
-    borderRadius: 7,
-    backgroundColor: "#D7D1BD",
+    width: 78,
+    height: 78,
+    borderRadius: 8,
+    backgroundColor: Colors.cream,
   },
 
   // -- Pagination
-  cardPagination: {
-    marginTop: 12,
-    flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
-    gap: 6,
-  },
   pagination: {
     flexDirection: "row",
     alignItems: "center",
@@ -768,17 +714,19 @@ const styles = StyleSheet.create({
     width: 6,
     height: 6,
     borderRadius: 3,
-    backgroundColor: "rgba(36,68,45,0.25)",
+    backgroundColor: "rgba(255,255,255,0.35)",
   },
   dotActive: {
-    backgroundColor: Colors.darkGreen,
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: Colors.cream,
   },
   pageNum: {
     fontFamily: "NationalPark-Regular",
-    fontSize: 7,
-    color: Colors.green,
-    marginTop: 4,
-    textAlign: "center",
+    fontSize: 11,
+    color: Colors.cream,
+    marginLeft: 4,
   },
 
   // -- Action buttons
