@@ -1,6 +1,7 @@
 import { ActionButton, ExploreButton } from "@/components/ui/Buttons";
 import { Colors } from "@/constants/theme";
 import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
+import { LinearGradient } from "expo-linear-gradient";
 import { useFocusEffect, useRouter } from "expo-router";
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
@@ -17,58 +18,80 @@ const background = require("../assets/images/backgrounds/Beach.png");
 const iguana = require("../assets/images/elements/Iguana.png");
 const iguanaPhoto = require("../assets/images/elements/fiji-banded-iguana-photo.jpg");
 const foreground = require("../assets/images/backgrounds/BeachForeground.png");
+const researchNotesIcon = require("../assets/images/icons/icon-research-notes.png");
 
-const IDLE_TIMEOUT_MS = 30_000;
+const IDLE_TIMEOUT_MS = 5_000;
 
 const RESEARCH_CARDS = [
   {
     title: "Vibrant Coloring",
     description:
       "Male Fiji banded iguanas have bright blue bands or stripes across their green backs, and females are green with pale spots.",
+    fieldNote:
+      "With these vibrant stripes, it is no wonder they are called banded iguanas.",
   },
   {
     title: "Island Habitat",
     description:
       "Found exclusively in the tropical rainforests of Fiji's islands, primarily on Vanua Levu and Taveuni.",
+    fieldNote:
+      "Fiji's dense rainforests provide both food and shelter for these tree-dwelling iguanas.",
   },
   {
     title: "Herbivore Diet",
     description:
       "Fiji iguanas feed almost entirely on leaves, flowers, and fruits, playing an important role in seed dispersal.",
+    fieldNote:
+      "Their role as seed dispersers makes them a keystone species in their ecosystem.",
   },
   {
     title: "Territorial Nature",
     description:
       "Males are highly territorial and will head-bob, do push-ups, and change coloration to warn rivals and attract females.",
+    fieldNote:
+      "Watch for these displays near basking spots — they happen fast and are easy to miss.",
   },
   {
     title: "Egg Laying",
     description:
       "Females lay a small clutch of 3–6 eggs, incubating for around 170 days — one of the longest periods of any lizard.",
+    fieldNote:
+      "That 170-day incubation period is nearly six months — remarkable for a reptile this size.",
   },
   {
     title: "UV Vision",
     description:
       "Fiji iguanas are tetrachromatic, detecting four color channels including ultraviolet light invisible to the human eye.",
+    fieldNote:
+      "Much of their world is literally invisible to us — UV patterns likely play a role in mate selection.",
   },
   {
     title: "Conservation",
     description:
       "Listed as Endangered by the IUCN, threatened by habitat loss, introduced predators, and the exotic pet trade.",
+    fieldNote:
+      "Mongoose introduction has been devastating — they prey on eggs and juveniles with ease.",
   },
 ];
 
-const STATUS_COLORS = [
+// Smooth gradient stops across the full IUCN spectrum
+const GRADIENT_COLORS = [
   "#4CAF50",
+  "#6EB544",
   "#8BC34A",
+  "#ADCC45",
   "#CDDC39",
+  "#DDD034",
+  "#EEC42E",
   "#FFC107",
+  "#FFB000",
   "#FF9800",
+  "#FF7022",
   "#FF5722",
+  "#F84836",
   "#F44336",
-];
+] as const;
 
-// Mirrors the carousel snap interval concept — 1 unit = 1 card
 const CARD_ANIM_UNIT = 1;
 
 export default function HomeScreen() {
@@ -83,16 +106,14 @@ export default function HomeScreen() {
   const iguanaTranslateY = useRef(new Animated.Value(0)).current;
   const overlayOpacity = useRef(new Animated.Value(0)).current;
   const panelOpacity = useRef(new Animated.Value(0)).current;
-
-  // Drives the card enter/exit animation 
   const cardAnim = useRef(new Animated.Value(0)).current;
 
   const [isExpanded, setIsExpanded] = useState(false);
   const [cardIndex, setCardIndex] = useState(0);
+  const [displayIndex, setDisplayIndex] = useState(0);
   const router = useRouter();
   const idleTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const pulseLoop = useRef<Animated.CompositeAnimation | null>(null);
-  const [displayIndex, setDisplayIndex] = useState(0);
 
   const resetIdleTimer = useCallback(() => {
     if (idleTimer.current) clearTimeout(idleTimer.current);
@@ -143,17 +164,13 @@ export default function HomeScreen() {
     setCardIndex(nextIndex);
     resetIdleTimer();
 
-    // Slide current card out
     Animated.timing(cardAnim, {
-      toValue: -direction * CARD_ANIM_UNIT, // exit to opposite side
+      toValue: -direction * CARD_ANIM_UNIT,
       duration: 300,
       useNativeDriver: true,
     }).start(() => {
-      // Swap content and snap to incoming side
       setDisplayIndex(nextIndex);
       cardAnim.setValue(direction * CARD_ANIM_UNIT);
-
-      // Slide new card in to center
       Animated.timing(cardAnim, {
         toValue: 0,
         duration: 300,
@@ -168,7 +185,7 @@ export default function HomeScreen() {
     pulseLoop.current?.stop();
     Animated.parallel([
       Animated.spring(bgScale, {
-        toValue: 1.4,
+        toValue: 1.2,
         friction: 8,
         tension: 25,
         useNativeDriver: true,
@@ -186,25 +203,25 @@ export default function HomeScreen() {
         useNativeDriver: true,
       }),
       Animated.spring(fgTranslateY, {
-        toValue: 180,
+        toValue: 195,
         friction: 8,
         tension: 25,
         useNativeDriver: true,
       }),
       Animated.spring(iguanaScale, {
         toValue: 1.25,
-        friction: 7,
-        tension: 35,
+        friction: 8,
+        tension: 25,
         useNativeDriver: true,
       }),
       Animated.spring(iguanaTranslateX, {
         toValue: -20,
-        friction: 7,
-        tension: 30,
+        friction: 8,
+        tension: 25,
         useNativeDriver: true,
       }),
       Animated.spring(iguanaTranslateY, {
-        toValue: 180,
+        toValue: 195,
         friction: 7,
         tension: 30,
         useNativeDriver: true,
@@ -239,6 +256,7 @@ export default function HomeScreen() {
     outputRange: ["-3deg", "0deg", "3deg"],
     extrapolate: "clamp",
   });
+
   return (
     <TouchableWithoutFeedback onPress={expand}>
       <Animated.View
@@ -320,42 +338,36 @@ export default function HomeScreen() {
         >
           {/* Station badge */}
           <View style={styles.stationBadge}>
-            <FontAwesome5
-              name="broadcast-tower"
-              size={11}
-              color={Colors.brown}
-            />
+            <FontAwesome5 name="binoculars" size={11} color={Colors.brown} />
             <Text style={styles.stationText}>
-              Welcome to the Research Station
+              Lizard Landing Research Station
             </Text>
           </View>
 
-          <Text style={styles.animalName}>FIJI BANDED IGUANA</Text>
-          <Text style={styles.scientificNameExpanded}>
-            Brachylophus bulabula
-          </Text>
+          {/* Left-aligned name + scientific name + conservation block */}
+          <View style={styles.leftBlock}>
+            <Text style={styles.animalName}>FIJI BANDED IGUANA</Text>
+            <Text style={styles.scientificNameExpanded}>
+              Brachylophus bulabula
+            </Text>
 
-          {/* Conservation status bar */}
-          <View style={styles.conservationBlock}>
-            <Text style={styles.conservationLabel}>Conservation Status</Text>
-            <View style={styles.statusBarWrapper}>
-              {STATUS_COLORS.map((color, i) => (
-                <View
-                  key={i}
-                  style={[
-                    styles.statusSegment,
-                    { backgroundColor: color },
-                    i === 0 && styles.segmentLeft,
-                    i === STATUS_COLORS.length - 1 && styles.segmentRight,
-                  ]}
+            {/* Conservation status bar — compact, gradient */}
+            <View style={styles.conservationBlock}>
+              <Text style={styles.conservationLabel}>Conservation Status</Text>
+              <View style={styles.statusBarWrapper}>
+                <LinearGradient
+                  colors={GRADIENT_COLORS}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 0 }}
+                  style={styles.gradientBar}
                 />
-              ))}
-              <View style={styles.statusMarker} />
+                <View style={styles.statusMarker} />
+              </View>
+              <Text style={styles.endangeredLabel}>Endangered</Text>
             </View>
-            <Text style={styles.endangeredLabel}>Endangered</Text>
           </View>
 
-          {/* Research notes card with carousel-style animation */}
+          {/* Research notes card */}
           <View style={styles.cardRow}>
             <TouchableOpacity
               onPress={() => navigateCard(Math.max(0, cardIndex - 1))}
@@ -381,38 +393,25 @@ export default function HomeScreen() {
                 },
               ]}
             >
+              {/* Card header */}
               <View style={styles.cardHeader}>
-                <View style={styles.cardIconCircle}>
-                  <FontAwesome5
-                    name="clipboard-list"
-                    size={15}
-                    color={Colors.darkGreen}
-                  />
-                </View>
-                <View>
-                  <Text style={styles.cardHeaderText}>
-                    FIELD OUTPOST RESEARCH NOTES
-                  </Text>
-                  <View style={styles.cardHeaderRule} />
-                </View>
+                <Image
+                  source={researchNotesIcon}
+                  style={styles.cardHeaderIcon}
+                  resizeMode="contain"
+                />
+                <Text style={styles.cardHeaderText}>RESEARCH NOTES</Text>
               </View>
+
+              {/* Body: text + photo */}
               <View style={styles.cardBody}>
                 <View style={styles.cardTextCol}>
                   <Text style={styles.cardTitle}>
                     {RESEARCH_CARDS[displayIndex].title}
                   </Text>
-                  <Text
-                    style={styles.cardDesc}
-                    ellipsizeMode="tail"
-                  >
+                  <Text style={styles.cardDesc} ellipsizeMode="tail">
                     {RESEARCH_CARDS[displayIndex].description}
                   </Text>
-                  <View style={styles.fieldNote}>
-                    <FontAwesome5 name="pen" size={8} color={Colors.black} />
-                    <Text style={styles.fieldNoteText}>
-                      Note: With these vibrant stripes, it is no wonder they are called banded iguanas.
-                    </Text>
-                  </View>
                 </View>
                 <Image
                   source={iguanaPhoto}
@@ -420,17 +419,14 @@ export default function HomeScreen() {
                   resizeMode="cover"
                 />
               </View>
-              <View style={styles.cardPagination}>
-                {RESEARCH_CARDS.map((_, i) => (
-                  <View
-                    key={i}
-                    style={[styles.dot, i === cardIndex && styles.dotActive]}
-                  />
-                ))}
+
+              {/* Field note — full width below body */}
+              <View style={styles.fieldNote}>
+                <FontAwesome5 name="pen" size={8} color={Colors.darkGreen} />
+                <Text style={styles.fieldNoteText}>
+                  {RESEARCH_CARDS[displayIndex].fieldNote}
+                </Text>
               </View>
-              <Text style={styles.pageNum}>
-                {cardIndex + 1}/{RESEARCH_CARDS.length}
-              </Text>
             </Animated.View>
 
             <TouchableOpacity
@@ -450,6 +446,19 @@ export default function HomeScreen() {
                 }
               />
             </TouchableOpacity>
+          </View>
+
+          {/* Pagination dots — outside the card */}
+          <View style={styles.pagination}>
+            {RESEARCH_CARDS.map((_, i) => (
+              <View
+                key={i}
+                style={[styles.dot, i === cardIndex && styles.dotActive]}
+              />
+            ))}
+            <Text style={styles.pageNum}>
+              {cardIndex + 1}/{RESEARCH_CARDS.length}
+            </Text>
           </View>
 
           {/* Action buttons */}
@@ -503,7 +512,7 @@ const styles = StyleSheet.create({
   },
   foregroundWrapper: {
     position: "absolute",
-    top: 0,
+    top: 60,
     left: 0,
     width: "100%",
     height: "100%",
@@ -515,7 +524,7 @@ const styles = StyleSheet.create({
   },
   iguana: {
     position: "absolute",
-    bottom: "32%",
+    bottom: "25%",
     right: 0,
     width: "72%",
     height: "58%",
@@ -561,9 +570,9 @@ const styles = StyleSheet.create({
     right: 0,
     bottom: 0,
     paddingTop: "7%",
-    paddingHorizontal: 12,
+    paddingHorizontal: 14,
     zIndex: 10,
-    alignItems: "center",
+    alignItems: "flex-start",
   },
   stationBadge: {
     flexDirection: "row",
@@ -573,18 +582,23 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 5,
     gap: 6,
+    alignSelf: "flex-start",
   },
   stationText: {
     fontFamily: "NeueFrutigerWorld-Regular",
     fontSize: 12,
     color: Colors.brown,
   },
+
+  // Left-aligned block for name + status
+  leftBlock: {
+    alignSelf: "stretch",
+    marginTop: 8,
+  },
   animalName: {
     fontFamily: "NeueFrutigerWorld-Black",
-    fontSize: 34,
+    fontSize: 32,
     color: Colors.cream,
-    textAlign: "center",
-    marginTop: 8,
     letterSpacing: 1,
     textShadowColor: "rgba(0,0,0,0.5)",
     textShadowOffset: { width: 0, height: 1 },
@@ -592,61 +606,55 @@ const styles = StyleSheet.create({
   },
   scientificNameExpanded: {
     fontFamily: "NeueFrutigerWorld-Regular",
-    fontSize: 15,
+    fontSize: 14,
     fontStyle: "italic",
     color: Colors.cream,
     marginTop: 1,
   },
 
-  // -- Conservation bar
+  // -- Conservation bar — compact
   conservationBlock: {
-    width: "100%",
-    marginTop: 10,
-    paddingHorizontal: 2,
+    marginTop: 8,
+    width: "60%", // only spans part of the row so it reads as compact
   },
   conservationLabel: {
     fontFamily: "NationalPark-Regular",
-    fontSize: 11,
+    fontSize: 10,
     color: Colors.cream,
-    marginBottom: 5,
+    marginBottom: 4,
     letterSpacing: 0.4,
+    opacity: 0.85,
   },
   statusBarWrapper: {
-    flexDirection: "row",
-    height: 10,
+    height: 8,
     width: "100%",
     position: "relative",
+    borderRadius: 4,
+    overflow: "hidden",
   },
-  statusSegment: {
+  gradientBar: {
     flex: 1,
-    height: 10,
-  },
-  segmentLeft: {
-    borderTopLeftRadius: 5,
-    borderBottomLeftRadius: 5,
-  },
-  segmentRight: {
-    borderTopRightRadius: 5,
-    borderBottomRightRadius: 5,
+    height: 8,
+    borderRadius: 4,
   },
   statusMarker: {
     position: "absolute",
     left: "61%",
-    top: -4,
-    width: 18,
-    height: 18,
-    borderRadius: 9,
+    top: -3,
+    width: 14,
+    height: 14,
+    borderRadius: 7,
     backgroundColor: Colors.cream,
     borderWidth: 2,
     borderColor: Colors.brown,
-    transform: [{ translateX: -9 }],
+    transform: [{ translateX: -7 }],
   },
   endangeredLabel: {
     fontFamily: "NationalPark-Regular",
-    fontSize: 10,
+    fontSize: 9,
     color: Colors.cream,
     marginTop: 3,
-    alignSelf: "flex-start",
+    opacity: 0.85,
     marginLeft: "57%",
   },
 
@@ -655,9 +663,9 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     width: "100%",
-    marginTop: 14,
-    gap: 4,
-    height: 238,
+    marginTop: 12,
+    gap: 2,
+    height: 240,
   },
   arrowBtn: {
     width: 44,
@@ -670,8 +678,8 @@ const styles = StyleSheet.create({
   researchCard: {
     flex: 1,
     backgroundColor: Colors.cream,
-    borderRadius: 8,
-    padding: 16,
+    borderRadius: 14,
+    padding: 14,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.22,
@@ -682,32 +690,25 @@ const styles = StyleSheet.create({
   cardHeader: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 12,
-    marginBottom: 18,
+    gap: 8,
+    marginBottom: 7,
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.green,
+    paddingBottom: 6,
   },
-  cardIconCircle: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "rgba(103,139,61,0.22)",
+  cardHeaderIcon: {
+    width: 30,
+    height: 30,
   },
   cardHeaderText: {
     fontFamily: "NeueFrutigerWorld-Bold",
-    fontSize: 8,
-    color: Colors.darkGreen,
-    letterSpacing: 0.3,
-  },
-  cardHeaderRule: {
-    width: 30,
-    height: 2,
-    marginTop: 8,
-    backgroundColor: Colors.darkGreen,
+    fontSize: 10,
+    color: Colors.green,
+    letterSpacing: 1.5,
   },
   cardBody: {
     flexDirection: "row",
-    gap: 13,
+    gap: 10,
     alignItems: "flex-start",
   },
   cardTextCol: {
@@ -715,76 +716,75 @@ const styles = StyleSheet.create({
   },
   cardTitle: {
     fontFamily: "NeueFrutigerWorld-Black",
-    fontSize: 18,
+    fontSize: 16,
     color: Colors.darkGreen,
-    marginBottom: 11,
+    marginBottom: 5,
   },
+  // Slightly smaller, darker than before
   cardDesc: {
-    fontFamily: "NationalPark-Regular",
-    fontSize: 10,
-    color: Colors.green,
-    lineHeight: 15,
+    fontFamily: "NeueFrutigerWorld-Regular",
+    fontSize: 11,
+    color: Colors.darkGreen,
+    lineHeight: 17,
+    opacity: 0.85,
   },
+  cardThumb: {
+    width: 78,
+    height: 78,
+    borderRadius: 8,
+    backgroundColor: Colors.cream,
+  },
+
+  // Field note — full width below body
   fieldNote: {
-    marginTop: 12,
-    minHeight: 27,
-    borderRadius: 14,
+    marginTop: 10,
+    borderRadius: 10,
     paddingHorizontal: 9,
-    paddingVertical: 5,
+    paddingVertical: 6,
     flexDirection: "row",
     alignItems: "center",
     gap: 6,
-    backgroundColor: "rgba(255,255,255,0.75)",
+    backgroundColor: "rgba(103,139,61,0.12)",
   },
   fieldNoteText: {
     flex: 1,
     fontFamily: "NationalPark-Regular",
-    fontSize: 6,
-    lineHeight: 8,
+    fontSize: 10,
+    lineHeight: 14,
     color: Colors.darkGreen,
   },
-  cardThumb: {
-    width: 104,
-    height: 112,
-    borderRadius: 7,
-    backgroundColor: "#D7D1BD",
-  },
 
-  // -- Pagination
-  cardPagination: {
-    marginTop: 12,
-    flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
-    gap: 6,
-  },
+  // -- Pagination dots — outside the card
   pagination: {
     flexDirection: "row",
     alignItems: "center",
     gap: 5,
     marginTop: 8,
+    alignSelf: "center",
   },
   dot: {
     width: 6,
     height: 6,
     borderRadius: 3,
-    backgroundColor: "rgba(36,68,45,0.25)",
+    backgroundColor: "rgba(255,255,255,0.35)",
   },
   dotActive: {
-    backgroundColor: Colors.darkGreen,
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: Colors.cream,
   },
   pageNum: {
     fontFamily: "NationalPark-Regular",
-    fontSize: 7,
-    color: Colors.green,
-    marginTop: 4,
-    textAlign: "center",
+    fontSize: 11,
+    color: Colors.cream,
+    marginLeft: 4,
   },
 
   // -- Action buttons
   buttonsWrapper: {
     position: "absolute",
-    bottom: "10%",
+    bottom: "5%",
     right: 12,
     gap: 7,
   },

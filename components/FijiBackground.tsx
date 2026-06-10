@@ -233,7 +233,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#3ecfea",
   },
   sky: {
-    ...StyleSheet.absoluteFill,
+    ...StyleSheet.absoluteFillObject,
     backgroundColor: "#3ecfea",
   },
   scrollLayer: {
@@ -246,6 +246,6 @@ const styles = StyleSheet.create({
     left: 0,
   },
   content: {
-    ...StyleSheet.absoluteFill,
+    ...StyleSheet.absoluteFillObject,
   },
 });

@@ -99,12 +99,9 @@ export const ExploreButton: React.FC<ButtonProps> = ({
     activeOpacity={0.8}
     {...props}
   >
-    <FontAwesome5
-      name="search"
-      size={16}
-      color={Colors.white}
-      style={styles.exploreIcon}
-    />
+    <View style={styles.exploreIconCircle}>
+      <FontAwesome5 name="search" size={20} color={Colors.white} />
+    </View>
     <Text style={styles.exploreText}>{label}</Text>
     <FontAwesome5 name="chevron-right" size={14} color={Colors.white} />
   </TouchableOpacity>
@@ -171,10 +168,12 @@ const styles = StyleSheet.create({
   exploreBtn: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: Colors.limeGreen,
+    backgroundColor: "rgba(41,96,41,0.9)",
     borderRadius: 8,
-    paddingVertical: Spacing.sm + 4,
-    paddingHorizontal: Spacing.lg,
+    borderWidth: 1,
+    borderColor: "rgba(85,198,85,0.6)",
+    paddingVertical: Spacing.sm,
+    paddingHorizontal: Spacing.sm,
     gap: Spacing.sm,
   },
   exploreIcon: {
@@ -187,5 +186,13 @@ const styles = StyleSheet.create({
     letterSpacing: 0.5,
     textTransform: "uppercase",
     color: Colors.white,
+  },
+  exploreIconCircle: {
+    width: 38,
+    height: 38,
+    borderRadius: 19,
+    backgroundColor: "rgba(255,255,255,0.18)",
+    alignItems: "center",
+    justifyContent: "center",
   },
 });
