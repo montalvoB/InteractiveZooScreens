@@ -28,6 +28,8 @@ const SCENE_TOP = 0.382;
 const SCENE_ASPECT_RATIO = 2160 / 2330;
 const SCANNER_MIN_TOP = 0.44;
 const SCANNER_MAX_TOP = 0.82;
+const INFO_BUBBLE_HEIGHT = 150;
+const INFO_BUBBLE_GAP = 14;
 
 type Point = {
   x: number;
@@ -146,21 +148,25 @@ export default function IguanaXRayScreen() {
 
   const bubblePosition = useMemo(() => {
     const bubbleWidth = Math.min(270, screenSize.width - 28);
-    const bubbleHeight = 150;
+    const bubbleHeight = INFO_BUBBLE_HEIGHT;
     const habitatTop = imageRect.top + imageRect.height * HEADER_HEIGHT;
 
-    const left = lens.x + LENS_SIZE + 12;
-    const top = lens.y;
+    const rightAlignedLeft = lens.x + LENS_SIZE - bubbleWidth;
+    const top = lens.y - bubbleHeight - INFO_BUBBLE_GAP;
 
     return {
       width: bubbleWidth,
-      left: clamp(left, 14, screenSize.width - bubbleWidth - 14),
+      left: clamp(rightAlignedLeft, 14, screenSize.width - bubbleWidth - 14),
       top: clamp(top, habitatTop + 14, screenSize.height - bubbleHeight - 14),
     };
   }, [imageRect.height, imageRect.top, lens.x, lens.y, screenSize.height, screenSize.width]);
 
   const scannerBounds = useMemo(() => {
-    const minY = imageRect.top + imageRect.height * SCANNER_MIN_TOP;
+    const habitatTop = imageRect.top + imageRect.height * HEADER_HEIGHT;
+    const minY = Math.max(
+      imageRect.top + imageRect.height * SCANNER_MIN_TOP,
+      habitatTop + INFO_BUBBLE_HEIGHT + INFO_BUBBLE_GAP + 14,
+    );
     return {
       minX: imageRect.left,
       maxX: imageRect.left + imageRect.width - LENS_SIZE,
