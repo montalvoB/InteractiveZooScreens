@@ -2,11 +2,11 @@ import { router } from "expo-router";
 import {
     ImageBackground,
     StyleSheet,
-    Text,
     TouchableOpacity,
     View,
 } from "react-native";
 import CarouselCards from "./CarouselCards";
+import { BodyText, DisplayHeading, SubHeading1 } from "@/components/Typography";
 
 const cards = [
   {
@@ -45,8 +45,8 @@ export default function InfoCardsScreen() {
         style={styles.background}
         resizeMode="cover"
       >
-        <Text style={styles.title}>Info Cards</Text>
-        <Text style={styles.heading}>Do you want to find out more?</Text>
+        <DisplayHeading style={styles.title}>Info Cards</DisplayHeading>
+        <BodyText style={styles.heading}>Do you want to find out more?</BodyText>
         <CarouselCards
           cards={cards}
           onCardPress={(card) => {
@@ -61,7 +61,7 @@ export default function InfoCardsScreen() {
           onPress={() => router.push("/")}
           style={styles.backButton}
         >
-          <Text style={styles.backButtonText}>← Back</Text>
+          <SubHeading1 style={styles.backButtonText}>← Back</SubHeading1>
         </TouchableOpacity>
       </ImageBackground>
     </View>
@@ -75,7 +75,6 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 45,
-    fontWeight: "300",
     color: "#0a0a0a",
     letterSpacing: 12,
     textTransform: "uppercase",

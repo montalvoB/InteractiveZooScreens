@@ -3,23 +3,31 @@ import { router } from "expo-router";
 import { useMemo, useState } from "react";
 import {
   Image,
+  GestureResponderEvent,
   LayoutChangeEvent,
   StyleSheet,
-  Text,
   TouchableOpacity,
   View,
   useWindowDimensions,
 } from "react-native";
 import { Colors } from "@/constants/theme";
+import { BodyText, DisplayHeading, SubHeading1 } from "@/components/Typography";
 
-// Put these two files in: assets/images/elements/
-const normalIguanaPage = require("../assets/images/elements/img-normal.jpg");
 const skeletonIguanaPage = require("../assets/images/elements/IguanaSkeleton.jpg");
+const xrayScene = require("../assets/images/xray/xray-scene.png");
+const backButtonImage = require("../assets/images/xray/xray-back-button.png");
+const nextButtonImage = require("../assets/images/xray/xray-next-button.png");
+const tapScannerButtonImage = require("../assets/images/xray/xray-tap-scanner-button.png");
 
 const LENS_SIZE = 145;
 const DESIGN_WIDTH = 1080;
 const DESIGN_HEIGHT = 1920;
 const IMAGE_ASPECT_RATIO = DESIGN_WIDTH / DESIGN_HEIGHT;
+const HEADER_HEIGHT = 0.322;
+const SCENE_TOP = 0.382;
+const SCENE_ASPECT_RATIO = 2160 / 2330;
+const SCANNER_MIN_TOP = 0.44;
+const SCANNER_MAX_TOP = 0.82;
 
 type Point = {
   x: number;
@@ -137,28 +145,50 @@ export default function IguanaXRayScreen() {
   }, [imageRect.height, imageRect.left, imageRect.top, imageRect.width, lens.x, lens.y, scanning]);
 
   const bubblePosition = useMemo(() => {
-    const bubbleWidth = Math.min(260, screenSize.width - 28);
-    const bubbleHeight = 145;
+    const bubbleWidth = Math.min(270, screenSize.width - 28);
+    const bubbleHeight = 150;
+    const habitatTop = imageRect.top + imageRect.height * HEADER_HEIGHT;
 
-    let left = lens.x + LENS_SIZE + 12;
-    let top = lens.y - 4;
-
-    if (left + bubbleWidth > screenSize.width - 14) {
-      left = lens.x - bubbleWidth - 12;
-    }
+    const left = lens.x + LENS_SIZE + 12;
+    const top = lens.y;
 
     return {
       width: bubbleWidth,
       left: clamp(left, 14, screenSize.width - bubbleWidth - 14),
-      top: clamp(top, 14, screenSize.height - bubbleHeight - 14),
+      top: clamp(top, habitatTop + 14, screenSize.height - bubbleHeight - 14),
     };
-  }, [lens.x, lens.y, screenSize.height, screenSize.width]);
+  }, [imageRect.height, imageRect.top, lens.x, lens.y, screenSize.height, screenSize.width]);
+
+  const scannerBounds = useMemo(() => {
+    const minY = imageRect.top + imageRect.height * SCANNER_MIN_TOP;
+    return {
+      minX: imageRect.left,
+      maxX: imageRect.left + imageRect.width - LENS_SIZE,
+      minY,
+      maxY: imageRect.top + imageRect.height * SCANNER_MAX_TOP,
+    };
+  }, [imageRect.height, imageRect.left, imageRect.top, imageRect.width]);
+
+  const sceneFrame = useMemo(() => {
+    const width = imageRect.width;
+    const height = width / SCENE_ASPECT_RATIO;
+    return {
+      left: imageRect.left,
+      top: imageRect.top + imageRect.height * SCENE_TOP,
+      width,
+      height,
+    };
+  }, [imageRect.height, imageRect.left, imageRect.top, imageRect.width]);
 
   const updateLens = (locationX: number, locationY: number) => {
     setLens({
-      x: clamp(locationX - LENS_SIZE / 2, 0, screenSize.width - LENS_SIZE),
-      y: clamp(locationY - LENS_SIZE / 2, 0, screenSize.height - LENS_SIZE),
+      x: clamp(locationX - LENS_SIZE / 2, scannerBounds.minX, scannerBounds.maxX),
+      y: clamp(locationY - LENS_SIZE / 2, scannerBounds.minY, scannerBounds.maxY),
     });
+  };
+
+  const updateLensFromTouch = (event: GestureResponderEvent) => {
+    updateLens(event.nativeEvent.pageX, event.nativeEvent.pageY);
   };
 
   const handleLayout = (event: LayoutChangeEvent) => {
@@ -171,30 +201,32 @@ export default function IguanaXRayScreen() {
     <View
       style={styles.container}
       onLayout={handleLayout}
-      onStartShouldSetResponder={() => true}
-      onMoveShouldSetResponder={() => true}
+      onStartShouldSetResponder={() => scanning}
+      onMoveShouldSetResponder={() => scanning}
       onResponderGrant={(event) => {
-        setScanning(true);
-        updateLens(event.nativeEvent.locationX, event.nativeEvent.locationY);
+        updateLensFromTouch(event);
       }}
       onResponderMove={(event) => {
-        updateLens(event.nativeEvent.locationX, event.nativeEvent.locationY);
+        updateLensFromTouch(event);
       }}
       onResponderRelease={() => undefined}
       onResponderTerminate={() => undefined}
     >
-      <Image
-        source={normalIguanaPage}
+      <View
         style={[
-          styles.pageImage,
+          styles.habitatBackground,
           {
             left: imageRect.left,
-            top: imageRect.top,
+            top: imageRect.top + imageRect.height * HEADER_HEIGHT,
             width: imageRect.width,
-            height: imageRect.height,
+            height: imageRect.height * (1 - HEADER_HEIGHT),
           },
         ]}
-        resizeMode="stretch"
+      />
+      <Image
+        source={xrayScene}
+        style={[styles.sceneImage, sceneFrame]}
+        resizeMode="contain"
       />
 
       {scanning && (
@@ -240,8 +272,8 @@ export default function IguanaXRayScreen() {
             },
           ]}
         >
-          <Text style={styles.infoTitle}>{activeZone.title}</Text>
-          <Text style={styles.infoText}>{activeZone.text}</Text>
+          <SubHeading1 style={styles.infoTitle}>{activeZone.title}</SubHeading1>
+          <BodyText style={styles.infoText}>{activeZone.text}</BodyText>
         </View>
       )}
 
@@ -253,37 +285,42 @@ export default function IguanaXRayScreen() {
             left: imageRect.left,
             top: imageRect.top,
             width: imageRect.width,
-            height: imageRect.height * 0.322,
+            height: imageRect.height * HEADER_HEIGHT,
           },
         ]}
       >
-        <Text style={styles.figmaTitle}>FIJI BANDED IGUANA</Text>
-        <Text style={styles.figmaSubtitle}>
+        <DisplayHeading style={styles.figmaTitle}>FIJI BANDED IGUANA</DisplayHeading>
+        <SubHeading1 style={styles.figmaSubtitle}>
           Research Study: Fiji Banded Iguana X-Ray
-        </Text>
-        <Text style={styles.figmaCaption}>
+        </SubHeading1>
+        <BodyText style={styles.figmaCaption}>
           Drag the scanner over the iguana to reveal its skeleton and learn about
           its anatomy
-        </Text>
+        </BodyText>
         <TouchableOpacity
           onPress={() => setScanning(true)}
           activeOpacity={0.8}
-          style={[
-            styles.scannerButton,
-            scanning && styles.scannerButtonActive,
-          ]}
+          style={scanning ? styles.scannerButton : styles.tapScannerButton}
         >
-          {scanning && (
-            <FontAwesome5
-              name="bone"
-              size={18}
-              color={Colors.white}
-              style={styles.scannerIcon}
+          {scanning ? (
+            <>
+              <FontAwesome5
+                name="bone"
+                size={18}
+                color={Colors.white}
+                style={styles.scannerIcon}
+              />
+              <SubHeading1 style={styles.scannerButtonText}>
+                Scanning... gathering research
+              </SubHeading1>
+            </>
+          ) : (
+            <Image
+              source={tapScannerButtonImage}
+              style={styles.tapScannerButtonImage}
+              resizeMode="contain"
             />
           )}
-          <Text style={styles.scannerButtonText}>
-            {scanning ? "Scanning... gathering research" : "TAP FOR THE SCANNER"}
-          </Text>
         </TouchableOpacity>
       </View>
 
@@ -293,25 +330,32 @@ export default function IguanaXRayScreen() {
           styles.bottomNav,
           {
             left: imageRect.left + imageRect.width * 0.04,
-            top: imageRect.top + imageRect.height * 0.887,
+            top: imageRect.top + imageRect.height * 0.895,
             width: imageRect.width * 0.92,
           },
         ]}
       >
         <TouchableOpacity
           onPress={() => router.replace("/HomeScreen")}
-          activeOpacity={0.8}
-          style={styles.backPill}
+          activeOpacity={0.86}
+          style={styles.backButton}
         >
-          <FontAwesome5 name="chevron-left" size={22} color={Colors.darkGreen} />
-          <Text style={styles.backPillText}>Back to research station</Text>
+          <Image
+            source={backButtonImage}
+            style={styles.backButtonImage}
+            resizeMode="contain"
+          />
         </TouchableOpacity>
         <TouchableOpacity
           onPress={() => router.push("/AnimalVisionScreen")}
-          activeOpacity={0.8}
-          style={styles.nextCircle}
+          activeOpacity={0.86}
+          style={styles.nextButton}
         >
-          <FontAwesome5 name="chevron-right" size={26} color={Colors.darkGreen} />
+          <Image
+            source={nextButtonImage}
+            style={styles.nextButtonImage}
+            resizeMode="contain"
+          />
         </TouchableOpacity>
       </View>
     </View>
@@ -324,8 +368,13 @@ const styles = StyleSheet.create({
     backgroundColor: "#000",
     overflow: "hidden",
   },
-  pageImage: {
+  habitatBackground: {
     position: "absolute",
+    backgroundColor: "#315A55",
+  },
+  sceneImage: {
+    position: "absolute",
+    zIndex: 2,
   },
   figmaHeader: {
     position: "absolute",
@@ -365,12 +414,20 @@ const styles = StyleSheet.create({
     borderRadius: 24,
     backgroundColor: "#A6C600",
     alignItems: "center",
-    justifyContent: "center",
     flexDirection: "row",
     paddingHorizontal: 18,
-  },
-  scannerButtonActive: {
     justifyContent: "flex-start",
+  },
+  tapScannerButton: {
+    position: "absolute",
+    left: "15%",
+    right: "15%",
+    bottom: "9%",
+    aspectRatio: 1510 / 194,
+  },
+  tapScannerButtonImage: {
+    width: "100%",
+    height: "100%",
   },
   scannerIcon: {
     marginRight: 18,
@@ -413,7 +470,7 @@ const styles = StyleSheet.create({
   },
   infoBubble: {
     position: "absolute",
-    zIndex: 15,
+    zIndex: 35,
     backgroundColor: "rgba(245,255,232,0.97)",
     borderColor: "#A5BC39",
     borderWidth: 2,
@@ -423,7 +480,6 @@ const styles = StyleSheet.create({
   },
   infoTitle: {
     fontSize: 14,
-    fontWeight: "900",
     color: "#24442D",
     letterSpacing: 1,
     textTransform: "uppercase",
@@ -433,7 +489,6 @@ const styles = StyleSheet.create({
     fontSize: 13,
     lineHeight: 18,
     color: "#296029",
-    fontWeight: "700",
   },
   bottomNav: {
     position: "absolute",
@@ -442,27 +497,20 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
   },
-  backPill: {
-    minWidth: "50%",
-    height: 52,
-    borderRadius: 26,
-    backgroundColor: Colors.yellow,
-    flexDirection: "row",
-    alignItems: "center",
-    paddingHorizontal: 22,
-    gap: 10,
+  backButton: {
+    width: "50%",
+    aspectRatio: 1032 / 194,
   },
-  backPillText: {
-    fontFamily: "NeueFrutigerWorld-Bold",
-    color: Colors.darkGreen,
-    fontSize: 14,
+  backButtonImage: {
+    width: "100%",
+    height: "100%",
   },
-  nextCircle: {
+  nextButton: {
     width: 56,
     height: 56,
-    borderRadius: 28,
-    backgroundColor: Colors.yellow,
-    alignItems: "center",
-    justifyContent: "center",
+  },
+  nextButtonImage: {
+    width: "100%",
+    height: "100%",
   },
 });

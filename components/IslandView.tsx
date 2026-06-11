@@ -8,7 +8,6 @@ export default function IslandView() {
   const router = useRouter();
   const scale = useRef(new Animated.Value(1)).current;
   const blurOpacity = useRef(new Animated.Value(0)).current;
-  const opacity = useRef(new Animated.Value(1)).current; // fade the whole scene
 
   function handleTap() {
     Animated.parallel([
