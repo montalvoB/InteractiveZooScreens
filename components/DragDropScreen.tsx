@@ -6,12 +6,12 @@ import {
   ImageBackground,
   PanResponder,
   StyleSheet,
-  Text,
   TouchableOpacity,
   View,
 } from "react-native";
 import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
 import Ionicons from "@expo/vector-icons/Ionicons";
+import { BodyText, DisplayHeading, SubHeading1 } from "@/components/Typography";
 
 const background = require("../assets/images/backgrounds/Beach.png");
 const iguana = require("../assets/images/elements/Iguana.png");
@@ -93,7 +93,7 @@ function DraggableImage({
           resizeMode="contain"
         />
       )}
-      <Text style={styles.dragLabel}>{label}</Text>
+      <BodyText style={styles.dragLabel}>{label}</BodyText>
     </Animated.View>
   );
 }
@@ -105,10 +105,10 @@ export default function DragDropScreen() {
   return (
     <View style={styles.container}>
       <ImageBackground source={background} style={styles.background}>
-        <Text style={styles.title}>Drag & Drop</Text>
-        <Text style={styles.subtitle}>
+        <DisplayHeading style={styles.title}>Drag & Drop</DisplayHeading>
+        <BodyText style={styles.subtitle}>
           Drag the small images into the habitat box.
-        </Text>
+        </BodyText>
 
         <View style={styles.gameArea}>
           <View style={styles.dragRow}>
@@ -135,10 +135,10 @@ export default function DragDropScreen() {
           </View>
 
             <View ref={boxRef} style={styles.dropBox}>
-            <Text style={styles.dropBoxTitle}>Habitat Box</Text>
-            <Text style={styles.dropBoxText}>
+            <SubHeading1 style={styles.dropBoxTitle}>Habitat Box</SubHeading1>
+            <BodyText style={styles.dropBoxText}>
               Dropped items: {droppedCount}
-            </Text>
+            </BodyText>
           </View>
         </View>
 
@@ -146,7 +146,7 @@ export default function DragDropScreen() {
           onPress={() => router.push("/InfoCardsScreen")}
           style={styles.backButton}
         >
-          <Text style={styles.backButtonText}>← Back to Cards</Text>
+          <SubHeading1 style={styles.backButtonText}>← Back to Cards</SubHeading1>
         </TouchableOpacity>
       </ImageBackground>
     </View>
@@ -166,7 +166,6 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 38,
-    fontWeight: "300",
     color: "#0a0a0a",
     letterSpacing: 6,
     textTransform: "uppercase",
@@ -200,7 +199,6 @@ const styles = StyleSheet.create({
   dragLabel: {
     marginTop: 4,
     fontSize: 12,
-    fontWeight: "700",
     color: "#333",
   },
   dropBox: {
@@ -216,7 +214,6 @@ const styles = StyleSheet.create({
   },
   dropBoxTitle: {
     fontSize: 24,
-    fontWeight: "800",
     color: "#111",
   },
   dropBoxText: {

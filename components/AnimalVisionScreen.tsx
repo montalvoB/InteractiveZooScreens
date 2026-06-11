@@ -72,7 +72,7 @@ export default function AnimalVisionScreen() {
           <Text style={styles.menuLabel}>Fiji Banded Iguana Vision</Text>
           <Text style={styles.description}>
             Fiji iguanas are tetrachromatic, they see four color channels
-            including UV light that's totally invisible to the human eye. They
+            including UV light that is totally invisible to the human eye. They
             have an all-cone retina which provides incredible color detail in
             daylight but renders them nearly blind at night.
           </Text>
