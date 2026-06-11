@@ -20,7 +20,7 @@ const iguanaPhoto = require("../assets/images/elements/fiji-banded-iguana-photo.
 const foreground = require("../assets/images/backgrounds/BeachForeground.png");
 const researchNotesIcon = require("../assets/images/icons/icon-research-notes.png");
 
-const IDLE_TIMEOUT_MS = 5_000;
+const IDLE_TIMEOUT_MS = 60_000;
 
 const RESEARCH_CARDS = [
   {
