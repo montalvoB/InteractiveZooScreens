@@ -148,18 +148,18 @@ export default function IguanaXRayScreen() {
 
   const bubblePosition = useMemo(() => {
     const bubbleWidth = Math.min(270, screenSize.width - 28);
-    const bubbleHeight = INFO_BUBBLE_HEIGHT;
     const habitatTop = imageRect.top + imageRect.height * HEADER_HEIGHT;
-
-    const rightAlignedLeft = lens.x + LENS_SIZE - bubbleWidth;
-    const top = lens.y - bubbleHeight - INFO_BUBBLE_GAP;
 
     return {
       width: bubbleWidth,
-      left: clamp(rightAlignedLeft, 14, screenSize.width - bubbleWidth - 14),
-      top: clamp(top, habitatTop + 14, screenSize.height - bubbleHeight - 14),
+      left: clamp(
+        imageRect.left + imageRect.width * 0.5 - bubbleWidth / 2,
+        14,
+        screenSize.width - bubbleWidth - 14,
+      ),
+      top: habitatTop + 14,
     };
-  }, [imageRect.height, imageRect.top, lens.x, lens.y, screenSize.height, screenSize.width]);
+  }, [imageRect.height, imageRect.left, imageRect.top, imageRect.width, screenSize.width]);
 
   const scannerBounds = useMemo(() => {
     const habitatTop = imageRect.top + imageRect.height * HEADER_HEIGHT;
