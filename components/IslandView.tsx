@@ -60,10 +60,7 @@ function LoopingLayer({
           top: top ?? 0,
           height: height ?? "100%",
           flexDirection: "row",
-          transform: [
-            { scale: layerScale ?? 1 },
-            { translateX: offsetX },
-          ],
+          transform: [{ scale: layerScale ?? 1 }, { translateX: offsetX }],
         },
       ]}
     >
@@ -106,7 +103,7 @@ export default function IslandView() {
           duration: 900,
           useNativeDriver: true,
         }),
-      ])
+      ]),
     ).start();
 
     // Ripple expands outward and fades
@@ -122,7 +119,7 @@ export default function IslandView() {
           duration: 1400,
           useNativeDriver: true,
         }),
-      ])
+      ]),
     ).start();
   }, []);
 
