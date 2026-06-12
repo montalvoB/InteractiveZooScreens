@@ -16,9 +16,15 @@ import {
 
 const background = require("../assets/images/backgrounds/Beach.png");
 const iguana = require("../assets/images/elements/Iguana.png");
-const iguanaPhoto = require("../assets/images/elements/fiji-banded-iguana-photo.jpg");
 const foreground = require("../assets/images/backgrounds/BeachForeground.png");
 const researchNotesIcon = require("../assets/images/icons/icon-research-notes.png");
+const vibrantColoringImage = require("../assets/images/research-notes/vibrant-coloring.png");
+const islandForestHomeImage = require("../assets/images/research-notes/island-forest-home.png");
+const treeClimberImage = require("../assets/images/research-notes/tree-climber.png");
+const conservationAlertImage = require("../assets/images/research-notes/conservation-alert.png");
+const foodLogImage = require("../assets/images/research-notes/food-log.png");
+const nestingNotesImage = require("../assets/images/research-notes/nesting-notes.png");
+const sunBaskerImage = require("../assets/images/research-notes/sun-basker.png");
 
 const IDLE_TIMEOUT_MS = 60_000;
 
@@ -29,48 +35,55 @@ const RESEARCH_CARDS = [
       "Male Fiji banded iguanas have bright blue bands or stripes across their green backs, and females are green with pale spots.",
     fieldNote:
       "With these vibrant stripes, it is no wonder they are called banded iguanas.",
+    image: vibrantColoringImage,
   },
   {
-    title: "Island Habitat",
+    title: "Island Forest Home",
     description:
-      "Found exclusively in the tropical rainforests of Fiji's islands, primarily on Vanua Levu and Taveuni.",
+      "These iguanas are an endemic species on the Fiji islands, and they love wet forests near the coast.",
     fieldNote:
       "Fiji's dense rainforests provide both food and shelter for these tree-dwelling iguanas.",
+    image: islandForestHomeImage,
   },
   {
-    title: "Herbivore Diet",
+    title: "Tree Climber",
     description:
-      "Fiji iguanas feed almost entirely on leaves, flowers, and fruits, playing an important role in seed dispersal.",
+      "Fiji banded iguanas are arboreal and use their long tails to balance as they climb and sunbask.",
     fieldNote:
       "Their role as seed dispersers makes them a keystone species in their ecosystem.",
+    image: treeClimberImage,
   },
   {
-    title: "Territorial Nature",
+    title: "Conservation Alert",
     description:
-      "Males are highly territorial and will head-bob, do push-ups, and change coloration to warn rivals and attract females.",
+      "Only about 6,000 Fiji banded iguanas remain in the wild, half the amount found 40 years ago. They are threatened by shrinking forests and invasive predators like rats, cats, and mongooses.",
     fieldNote:
-      "Watch for these displays near basking spots — they happen fast and are easy to miss.",
+      "We can help protect wildlife by spreading awareness and advocating for the environment. Tell a friend about the Fiji banded iguana.",
+    image: conservationAlertImage,
   },
   {
-    title: "Egg Laying",
+    title: "Food Log",
     description:
-      "Females lay a small clutch of 3–6 eggs, incubating for around 170 days — one of the longest periods of any lizard.",
+      "Fiji banded iguanas eat leaves, fruits, flowers, and occasionally insects. Hibiscus leaves and flowers are some of their favorites.",
     fieldNote:
-      "That 170-day incubation period is nearly six months — remarkable for a reptile this size.",
+      "While some of these iguanas stick to a vegetarian diet, I saw others eat caterpillars and cockroaches.",
+    image: foodLogImage,
   },
   {
-    title: "UV Vision",
+    title: "Nesting Notes",
     description:
-      "Fiji iguanas are tetrachromatic, detecting four color channels including ultraviolet light invisible to the human eye.",
+      "Female Fiji banded iguanas dig burrows in the ground to lay their eggs in. The eggs stay hidden for 7 to 9 months before hatching.",
     fieldNote:
-      "Much of their world is literally invisible to us — UV patterns likely play a role in mate selection.",
+      "The hatchling I observed immediately reacted to sounds and had excellent eyesight.",
+    image: nestingNotesImage,
   },
   {
-    title: "Conservation",
+    title: "Sun Basker",
     description:
-      "Listed as Endangered by the IUCN, threatened by habitat loss, introduced predators, and the exotic pet trade.",
+      "Fiji banded iguanas are diurnal and bask in the sun to warm up. Like most lizards, they can darken their skin to absorb heat faster.",
     fieldNote:
-      "Mongoose introduction has been devastating — they prey on eggs and juveniles with ease.",
+      "Sunlight helps these iguanas regulate body temperature and stay active during the day.",
+    image: sunBaskerImage,
   },
 ];
 
@@ -414,7 +427,7 @@ export default function HomeScreen() {
                   </Text>
                 </View>
                 <Image
-                  source={iguanaPhoto}
+                  source={RESEARCH_CARDS[displayIndex].image}
                   style={styles.cardThumb}
                   resizeMode="cover"
                 />
